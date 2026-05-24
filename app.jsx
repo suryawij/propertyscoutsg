@@ -1,0 +1,71 @@
+// app.jsx — root component + Tweaks panel
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  // Apply theme + density + gold intensity + font to <html>
+  React.useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("theme-dark", !!t.dark);
+    root.classList.remove("dens-compact", "dens-spacious");
+    if (t.density === "compact") root.classList.add("dens-compact");
+    if (t.density === "spacious") root.classList.add("dens-spacious");
+    root.classList.remove("gold-subtle", "gold-bold");
+    if (t.goldIntensity === "subtle") root.classList.add("gold-subtle");
+    if (t.goldIntensity === "bold") root.classList.add("gold-bold");
+    root.classList.toggle("font-sans-display", t.displayFont === "sans");
+  }, [t.dark, t.density, t.goldIntensity, t.displayFont]);
+
+  return (
+    <>
+      <Nav />
+      <main>
+        <Hero layout={t.heroLayout} />
+        <About />
+        <Services />
+        <WhyMe />
+        <Insights />
+        <Testimonials style={t.testimonialStyle} />
+        <FAQ />
+        <Lead />
+      </main>
+      <Footer />
+      <WhatsAppFloat />
+
+      <TweaksPanel>
+        <TweakSection label="Theme" />
+        <TweakToggle label="Dark mode" value={t.dark}
+          onChange={(v) => setTweak("dark", v)} />
+        <TweakRadio label="Gold accent" value={t.goldIntensity}
+          options={["subtle", "medium", "bold"]}
+          onChange={(v) => setTweak("goldIntensity", v)} />
+        <TweakRadio label="Display font" value={t.displayFont}
+          options={["serif", "sans"]}
+          onChange={(v) => setTweak("displayFont", v)} />
+
+        <TweakSection label="Layout" />
+        <TweakSelect label="Hero layout" value={t.heroLayout}
+          options={[
+            { value: "split", label: "Split · portrait + copy" },
+            { value: "portrait", label: "Portrait · centered" },
+            { value: "skyline", label: "Skyline · copy only" },
+          ]}
+          onChange={(v) => setTweak("heroLayout", v)} />
+        <TweakRadio label="Section padding" value={t.density}
+          options={["compact", "regular", "spacious"]}
+          onChange={(v) => setTweak("density", v)} />
+
+        <TweakSection label="Sections" />
+        <TweakSelect label="Testimonial cards" value={t.testimonialStyle}
+          options={[
+            { value: "card", label: "Card · classic" },
+            { value: "editorial", label: "Editorial · top-line" },
+            { value: "google", label: "Google review style" },
+          ]}
+          onChange={(v) => setTweak("testimonialStyle", v)} />
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
