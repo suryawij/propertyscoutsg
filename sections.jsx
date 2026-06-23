@@ -1,26 +1,90 @@
 // sections.jsx — all major page sections
+const __R = (id, fallback) => (window.__resources && window.__resources[id]) || fallback;
 
 // ────────── NAV ──────────
-const Nav = () =>
-<nav className="nav" id="top">
-    <div className="wrap nav-inner">
-      <BrandMark />
-      <div className="nav-links">
-        <a className="nav-link" href="#about">About</a>
-        <a className="nav-link" href="#services">Services</a>
-        <a className="nav-link" href="#testimonial">Testimonial</a>
-        <a className="nav-link" href="#contact">Contact</a>
-      </div>
-      <div className="nav-cta">
-        <a className="btn btn-wa btn-sm" href="https://wa.me/6588877800" target="_blank" rel="noreferrer">
-          <Icon name="whatsapp" size={14} /> WhatsApp
+// Calculator menu
+const CALCULATORS = [
+  { label: "New Launch Calculator", href: "New Launch Calculator.html", live: true },
+  { label: "Stamp Duty Calculator", href: "#stamp-duty", live: true },
+  { label: "Loan Eligibility Calculator", href: "calculators.html", live: false },
+];
+
+const CalcDropdown = () =>
+  <div className="nav-dropdown" tabIndex={0}>
+    <span className="nav-link nav-dropdown-trigger">
+      Calculators <Icon name="chevron-down" size={14} className="nav-chev" />
+    </span>
+    <div className="nav-dropdown-menu">
+      <a className="nav-dd-item" href="calculators.html">
+        <span>All calculators</span>
+      </a>
+      <div className="nav-dd-sep" />
+      {CALCULATORS.map((c) =>
+        <a key={c.label} className={`nav-dd-item${c.live ? "" : " is-soon"}`} href={c.href}>
+          <span>{c.label}</span>
+          {!c.live && <em className="nav-dd-soon">Soon</em>}
         </a>
-        <a className="btn btn-primary btn-sm" href="#contact">
-          Book consultation <Icon name="arrow-right" size={14} className="arr" />
-        </a>
-      </div>
+      )}
     </div>
-  </nav>;
+  </div>;
+
+const Nav = () => {
+  const [open, setOpen] = React.useState(false);
+  const close = () => setOpen(false);
+  return (
+    <nav className="nav" id="top">
+      <div className="wrap nav-inner">
+        <BrandMark />
+        <div className="nav-links">
+          <a className="nav-link" href="#about">About</a>
+          <a className="nav-link" href="#services">Services</a>
+          <CalcDropdown />
+          <a className="nav-link" href="#testimonial">Testimonial</a>
+          <a className="nav-link" href="#contact">Contact</a>
+        </div>
+        <div className="nav-cta">
+          <a className="btn btn-wa btn-sm" href="https://wa.me/6588877800" target="_blank" rel="noreferrer">
+            <Icon name="whatsapp" size={14} /> WhatsApp
+          </a>
+          <a className="btn btn-primary btn-sm" href="#contact">
+            Book consultation <Icon name="arrow-right" size={14} className="arr" />
+          </a>
+          <button className="nav-burger" aria-label="Menu" onClick={() => setOpen(o => !o)}>
+            <span className={`burger-icon${open ? " open" : ""}`}>
+              <span /><span /><span />
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu overlay */}
+      <div className={`mobile-menu${open ? " open" : ""}`} onClick={close}>
+        <div className="mobile-menu-body" onClick={e => e.stopPropagation()}>
+          <div className="mobile-menu-links">
+            <a className="mobile-link" href="#about" onClick={close}>About</a>
+            <a className="mobile-link" href="#services" onClick={close}>Services</a>
+            <div className="mobile-link-group">
+              <div className="mobile-link-label">Calculators</div>
+              <a className="mobile-sublink" href="New Launch Calculator.html">New Launch Calculator</a>
+              <a className="mobile-sublink" href="#stamp-duty" onClick={close}>Stamp Duty Calculator</a>
+              <a className="mobile-sublink mobile-sublink-soon" href="calculators.html">Loan Eligibility <em>Soon</em></a>
+            </div>
+            <a className="mobile-link" href="#testimonial" onClick={close}>Testimonial</a>
+            <a className="mobile-link" href="#contact" onClick={close}>Contact</a>
+          </div>
+          <div className="mobile-menu-cta">
+            <a className="btn btn-wa" href="https://wa.me/6588877800" target="_blank" rel="noreferrer" onClick={close}>
+              <Icon name="whatsapp" size={16} /> WhatsApp Shi Yao
+            </a>
+            <a className="btn btn-primary" href="#contact" onClick={close}>
+              Book free consultation <Icon name="arrow-right" size={14} className="arr" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
 
 
 // ────────── HERO ──────────
@@ -39,26 +103,25 @@ const Hero = ({ layout }) => {
               Measured, educational insights for HDB upgraders, condo owners, and investors —
               by Shi Yao, Senior Marketing Director at PropNex. Honest advice before any decision.
             </p>
+            <div className="hero-meta fade-in d4">
+              <div>
+                <div className="n"><em>200+</em></div>
+                <div className="lbl">Transactions closed</div>
+              </div>
+              <div>
+                <div className="n">10 yrs</div>
+                <div className="lbl">Singapore market</div>
+              </div>
+              <div>
+                <div className="n">PropNex</div>
+                <div className="lbl">Senior Marketing Director</div>
+              </div>
+            </div>
           </div>
 
           <div className="hero-image-wrap fade-in d2">
             <div className="hero-image-card">
-              <img src="assets/agent-half.png" alt="Shi Yao, Senior Marketing Director at PropNex" />
-            </div>
-          </div>
-
-          <div className="hero-meta fade-in d4">
-            <div>
-              <div className="n"><em>150+</em></div>
-              <div className="lbl">Transactions closed</div>
-            </div>
-            <div>
-              <div className="n">10 yrs</div>
-              <div className="lbl">Singapore market</div>
-            </div>
-            <div>
-              <div className="n">PropNex</div>
-              <div className="lbl">Senior Marketing Director</div>
+              <img src={__R("agentHero", "assets/agent-half.png")} alt="Shi Yao, Senior Marketing Director at PropNex" />
             </div>
           </div>
         </div>
@@ -81,45 +144,47 @@ const Hero = ({ layout }) => {
 const About = () =>
 <section className="section" id="about">
     <div className="wrap">
-      <Reveal className="about-img about-img-clean">
-        <img src="assets/agent-stand.png" alt="Shi Yao portrait" />
-      </Reveal>
-      <Reveal delay={120} className="about-copy">
-        <div className="eyebrow">About Shi Yao</div>
-        <h2 className="h-section" style={{ margin: "20px 0 22px" }}>
-          An advisor, not a <em>salesperson.</em>
-        </h2>
-        <p className="lede">
-          I entered Singapore real estate in 2016 with the belief that clients needed more than salespeople — they needed honest guidance and clear advice.
-        </p>
-        <p className="lede" style={{ marginTop: 16 }}>
-          Today, I work closely with families and investors who value clarity: on timing, financials, market positioning, and the trade-offs others often overlook.
-        </p>
-        <p className="lede" style={{ marginTop: 16 }}>
-          Every conversation starts with one simple question: <em style={{ fontFamily: "var(--display)", color: "var(--gold)" }}>“What’s truly the right move for you?”</em> From there, we build a strategy grounded in data, aligned with your lifestyle goals, and focused on long-term wealth growth.
-        </p>
+      <div className="about-grid">
+        <Reveal className="about-img about-img-clean">
+          <img src={__R("agentAbout", "assets/agent-stand.png")} alt="Shi Yao portrait" />
+        </Reveal>
+        <Reveal delay={120}>
+          <div className="eyebrow">About Shi Yao</div>
+          <h2 className="h-section" style={{ margin: "20px 0 22px" }}>
+            An advisor,<br />not a <em>Salesperson.</em>
+          </h2>
+          <p className="lede">
+            I entered Singapore real estate in 2016 with the belief that clients needed more than salespeople — they needed honest guidance and clear advice.
+          </p>
+          <p className="lede" style={{ marginTop: 16 }}>
+            Today, I work closely with families and investors who value clarity: on timing, financials, market positioning, and the trade-offs others often overlook.
+          </p>
+          <p className="lede" style={{ marginTop: 16 }}>
+            Every conversation starts with one simple question: <em style={{ fontFamily: "var(--display)", color: "var(--gold)" }}>“What’s truly the right move for you?”</em> From there, we build a strategy grounded in data, aligned with your lifestyle goals, and focused on long-term wealth growth.
+          </p>
 
-        <div className="about-creds">
-          <div className="about-cred">
-            <div>
-              <b>Senior Marketing Director — PropNex Realty</b>
-              <span>Leading a team focused on upgrader and investor advisory.</span>
+          <div className="about-creds">
+            <div className="about-cred">
+              <div>
+                <b>Senior Marketing Director — PropNex Realty</b>
+                <span>Leading a team focused on upgrader and investor advisory.</span>
+              </div>
+            </div>
+            <div className="about-cred">
+              <div>
+                <b>Top 5% Producer, PropNex</b>
+                <span>Recognised for consistent client satisfaction and sales volume.</span>
+              </div>
+            </div>
+            <div className="about-cred">
+              <div>
+                <b>CEA Registered Salesperson · R057878B</b>
+                <span>Full-time in residential resale, new launch, and investment advisory.</span>
+              </div>
             </div>
           </div>
-          <div className="about-cred">
-            <div>
-              <b>Top 5% Producer, PropNex</b>
-              <span>Recognised for consistent client satisfaction and sales volume.</span>
-            </div>
-          </div>
-          <div className="about-cred">
-            <div>
-              <b>CEA Registered Salesperson · R057878B</b>
-              <span>Full-time in residential resale, new launch, and investment advisory.</span>
-            </div>
-          </div>
-        </div>
-      </Reveal>
+        </Reveal>
+      </div>
     </div>
   </section>;
 
@@ -196,10 +261,52 @@ const WhyMe = () =>
 
 
 // ────────── INSIGHTS / YOUTUBE ──────────
-const videos = [
-{ tag: "Upgrader 101", title: "Sell first or buy first? A 2026 framework", duration: "12:24", desc: "Walking through cashflow, ABSD, and bridging loan options for HDB upgraders." },
-{ tag: "Market view", title: "Where are Singapore condo prices heading?", duration: "08:51", desc: "A measured look at supply, demand, and what URA caveats are telling us right now." },
-{ tag: "Investing", title: "The hidden costs nobody warns you about", duration: "10:07", desc: "From legal fees to property tax — what most first-time investors miss in their projections." }];
+// Real uploads from youtube.com/@itsmeshiyao. Titles are pulled live via
+// YouTube oEmbed on mount; the editorial fallback shows if the fetch is blocked.
+const ytVideos = [
+{ id: "5yRysXg-YDQ", tag: "Latest", fallback: "Property insight from Shi Yao" },
+{ id: "t0WJAF12gCY", tag: "Market view", fallback: "A measured read on the Singapore market" },
+{ id: "4g9YH65by4k", tag: "Upgrader", fallback: "Frameworks for upgraders & investors" }];
+
+const YtCard = ({ video, index }) => {
+  const [playing, setPlaying] = React.useState(false);
+  const [title, setTitle] = React.useState("");
+  React.useEffect(() => {
+    let alive = true;
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`).
+    then((r) => r.ok ? r.json() : null).
+    then((d) => {if (alive && d && d.title) setTitle(d.title);}).
+    catch(() => {});
+    return () => {alive = false;};
+  }, [video.id]);
+
+  return (
+    <Reveal delay={index * 90} className="yt-card">
+      <div className={`yt-thumb ${playing ? "playing" : ""}`}>
+        {playing ?
+        <iframe
+          className="yt-iframe"
+          src={`https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0`}
+          title={title || "YouTube video"}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          frameBorder="0" /> :
+
+        <button className="yt-thumb-btn" onClick={() => setPlaying(true)} aria-label={`Play: ${title || "video"}`}>
+            <img className="yt-thumb-bg" src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} alt={title || "YouTube video by Shi Yao"} loading="lazy" />
+            <span className="yt-thumb-tag">{video.tag}</span>
+            <span className="yt-play"><Icon name="play" size={22} /></span>
+          </button>
+        }
+      </div>
+      <div className="yt-meta">YouTube · @itsmeshiyao</div>
+      <h4>{title || video.fallback}</h4>
+      <a className="yt-watch" href={`https://youtu.be/${video.id}`} target="_blank" rel="noreferrer">
+        Watch on YouTube <Icon name="arrow-up-right" size={14} />
+      </a>
+    </Reveal>);
+
+};
 
 const Insights = () =>
 <section className="section section-alt" id="insights">
@@ -210,19 +317,7 @@ const Insights = () =>
         <p>New videos every week on YouTube — frameworks, market reads, and conversations with clients about real decisions.</p>
       </Reveal>
       <div className="yt-grid">
-        {videos.map((v, i) =>
-      <Reveal key={v.title} delay={i * 90} as="a" href="https://youtube.com/@itsmeshiyao" target="_blank" rel="noreferrer" className="yt-card">
-            <div className="yt-thumb">
-              <YtPlaceholder index={i} />
-              <span className="yt-thumb-tag">{v.tag}</span>
-              <span className="yt-thumb-len">{v.duration}</span>
-              <span className="yt-play"><Icon name="play" size={22} /></span>
-            </div>
-            <div className="yt-meta">YouTube · @itsmeshiyao</div>
-            <h4>{v.title}</h4>
-            <p>{v.desc}</p>
-          </Reveal>
-      )}
+        {ytVideos.map((v, i) => <YtCard key={v.id} video={v} index={i} />)}
       </div>
       <div style={{ textAlign: "center", marginTop: 48 }}>
         <a className="btn btn-ghost" href="https://youtube.com/@itsmeshiyao" target="_blank" rel="noreferrer">
@@ -231,66 +326,6 @@ const Insights = () =>
       </div>
     </div>
   </section>;
-
-
-// Subtle generative thumbnail placeholder — preserves "creator brand" feel without dummy stock imagery
-const YtPlaceholder = ({ index }) => {
-  const variants = [
-  // Skyline
-  <svg key="a" className="yt-thumb-bg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="ytga" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2a2317" /><stop offset="1" stopColor="#0d0c0a" />
-        </linearGradient>
-      </defs>
-      <rect width="320" height="200" fill="url(#ytga)" />
-      <g fill="#bd9859" opacity="0.55">
-        <rect x="20" y="120" width="22" height="60" />
-        <rect x="48" y="90" width="28" height="90" />
-        <rect x="82" y="60" width="24" height="120" />
-        <rect x="112" y="100" width="30" height="80" />
-        <rect x="148" y="40" width="22" height="140" />
-        <rect x="176" y="80" width="26" height="100" />
-        <rect x="208" y="110" width="20" height="70" />
-        <rect x="234" y="70" width="28" height="110" />
-        <rect x="268" y="100" width="22" height="80" />
-        <rect x="294" y="130" width="18" height="50" />
-      </g>
-      <circle cx="260" cy="46" r="12" fill="#e6b86d" opacity="0.7" />
-    </svg>,
-  // Chart
-  <svg key="b" className="yt-thumb-bg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="200" fill="#161410" />
-      <g stroke="#3a352a" strokeWidth="1">
-        <line x1="0" y1="50" x2="320" y2="50" />
-        <line x1="0" y1="100" x2="320" y2="100" />
-        <line x1="0" y1="150" x2="320" y2="150" />
-      </g>
-      <path d="M0 160 L40 150 L80 130 L120 140 L160 110 L200 90 L240 100 L280 70 L320 50"
-    stroke="#bd9859" strokeWidth="2" fill="none" />
-      <path d="M0 160 L40 150 L80 130 L120 140 L160 110 L200 90 L240 100 L280 70 L320 50 L320 200 L0 200 Z"
-    fill="#bd9859" opacity="0.15" />
-      <circle cx="200" cy="90" r="5" fill="#e6b86d" />
-    </svg>,
-  // Floorplan
-  <svg key="c" className="yt-thumb-bg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="200" fill="#1f1c16" />
-      <g stroke="#bd9859" strokeWidth="1.5" fill="none" opacity="0.7">
-        <rect x="40" y="30" width="240" height="140" />
-        <line x1="160" y1="30" x2="160" y2="170" />
-        <line x1="40" y1="100" x2="160" y2="100" />
-        <line x1="160" y1="80" x2="280" y2="80" />
-        <line x1="220" y1="80" x2="220" y2="170" />
-      </g>
-      <g fill="#e6b86d" opacity="0.5">
-        <circle cx="90" cy="60" r="10" />
-        <rect x="180" y="120" width="30" height="20" />
-        <rect x="240" y="40" width="20" height="20" />
-      </g>
-    </svg>];
-
-  return variants[index % variants.length];
-};
 
 // ────────── TESTIMONIALS ──────────
 const testimonials = [
@@ -389,15 +424,46 @@ const FAQ = () => {
 };
 
 // ────────── LEAD CAPTURE ──────────
+// Contact + WhatsApp settings
+const WA_NUMBER = "6588877800";
+// Web3Forms emails each submission to the address tied to this key.
+// Get a free key at https://web3forms.com (enter your email, copy the access key).
+const WEB3FORMS_KEY = "f11c76ec-4f42-4ae9-94a7-15bed0413bc1";
+
 const Lead = () => {
   const [sent, setSent] = React.useState(false);
-  const submit = (e) => {e.preventDefault();setSent(true);};
+  const submit = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const name = (fd.get("name") || "").toString().trim();
+    const mobile = (fd.get("mobile") || "").toString().trim();
+    const ptype = (fd.get("propertyType") || "").toString();
+    const timeline = (fd.get("timeline") || "").toString();
+    const concern = (fd.get("concern") || "").toString().trim() || "—";
+
+    if (window.fbq) fbq("track", "Lead", { content_name: "Strategy consultation form" });
+
+    // 1) Open WhatsApp with the enquiry pre-filled to Surya
+    const msg = `Hi Shi Yao, I'd like a free property strategy consultation.\n\nName: ${name}\nMobile: ${mobile}\nProperty type: ${ptype}\nTimeline: ${timeline}\nMain concern: ${concern}`;
+    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+
+    // 2) Email a copy via Web3Forms (skips silently until a real key is set)
+    if (WEB3FORMS_KEY && !WEB3FORMS_KEY.startsWith("YOUR_")) {
+      fd.append("access_key", WEB3FORMS_KEY);
+      fd.append("subject", `Property Scout - New Consultation Lead - ${name || "Website"}`);
+      fd.append("from_name", "Property Scout");
+      fetch("https://api.web3forms.com/submit", { method: "POST", body: fd }).catch(() => {});
+    }
+
+    setSent(true);
+  };
   return (
     <section className="section" id="contact">
       <div className="wrap">
         <Reveal className="lead-wrap">
           <div className="lead-grid">
-            <div className="lead-copy lead-copy-centered">
+            <div className="lead-copy">
               <div className="eyebrow" style={{ color: "var(--gold-light)" }}>Contact</div>
               <h2 className="h-section" style={{ marginTop: 20 }}>
                 Get a free property <em>strategy consultation.</em>
@@ -406,7 +472,7 @@ const Lead = () => {
                 A 30-minute conversation — no obligations, no pitch. Tell me what you're weighing,
                 and I'll come prepared with the numbers, scenarios, and questions to ask.
               </p>
-              <div className="lead-features">
+              <div className="lead-features" style={{ marginTop: 48 }}>
                 <div className="lead-feat"><span className="check"><Icon name="check" size={12} /></span> 30 minutes, online or in person</div>
                 <div className="lead-feat"><span className="check"><Icon name="check" size={12} /></span> Prepared comps for your property or target area</div>
                 <div className="lead-feat"><span className="check"><Icon name="check" size={12} /></span> Written summary sent after we speak</div>
@@ -417,7 +483,8 @@ const Lead = () => {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "40px" }}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--display)", fontSize: 40, color: "var(--gold-light)" }}>Thank you.</div>
-                  <p style={{ color: "rgba(245,239,225,.7)", marginTop: 16 }}>I'll be in touch on WhatsApp within the hour.</p>
+                  <p style={{ color: "rgba(245,239,225,.7)", marginTop: 16 }}>A WhatsApp message has opened with your details — just tap send and I'll reply within the hour.</p>
+                  <p style={{ color: "rgba(245,239,225,.7)", marginTop: 14 }}>If it didn't open, message me at +65 8887 7800</p>
                 </div>
               </div> :
 
@@ -433,16 +500,16 @@ const Lead = () => {
                 <div className="wa-or"><span>or fill in below</span></div>
                 <div>
                   <label>Your name</label>
-                  <input required type="text" placeholder="e.g. Daniel Tan" />
+                  <input name="name" required type="text" placeholder="e.g. Daniel Tan" />
                 </div>
                 <div>
                   <label>Mobile (WhatsApp)</label>
-                  <input required type="tel" placeholder="+65 9XXX XXXX" />
+                  <input name="mobile" required type="tel" placeholder="+65 9XXX XXXX" />
                 </div>
                 <div className="field-row">
                   <div>
                     <label>Property type</label>
-                    <select required defaultValue="">
+                    <select name="propertyType" required defaultValue="">
                       <option value="" disabled>Select</option>
                       <option>HDB</option>
                       <option>Condominium</option>
@@ -452,7 +519,7 @@ const Lead = () => {
                   </div>
                   <div>
                     <label>Timeline</label>
-                    <select required defaultValue="">
+                    <select name="timeline" required defaultValue="">
                       <option value="" disabled>Select</option>
                       <option>Just exploring</option>
                       <option>Within 3 months</option>
@@ -463,7 +530,7 @@ const Lead = () => {
                 </div>
                 <div>
                   <label>Main concern (optional)</label>
-                  <textarea placeholder="e.g. We've MOP'd and are weighing whether to upgrade to a condo or hold and invest separately." />
+                  <textarea name="concern" placeholder="e.g. We've MOP'd and are weighing whether to upgrade to a condo or hold and invest separately." />
                 </div>
                 <button type="submit">
                   Send my request <Icon name="arrow-right" size={14} />
@@ -496,6 +563,14 @@ const Footer = () =>
           </ul>
         </div>
         <div>
+          <h5>Calculators</h5>
+          <ul>
+            <li><a href="New Launch Calculator.html">New Launch Calculator</a></li>
+            <li><a href="calculators.html" style={{ opacity: 0.55 }}>Loan Eligibility · Soon</a></li>
+            <li><a href="#stamp-duty">Stamp Duty Calculator</a></li>
+          </ul>
+        </div>
+        <div>
           <h5>Direct line</h5>
           <ul>
             <li><a href="https://wa.me/6588877800">WhatsApp · +65 8887 7800</a></li>
@@ -506,9 +581,9 @@ const Footer = () =>
         <div>
           <h5>Follow</h5>
           <ul>
-            <li><a href="https://instagram.com/suryawij" target="_blank" rel="noreferrer"><Icon name="instagram" size={14} /> &nbsp;Instagram · @suryawij</a></li>
-            <li><a href="https://tiktok.com/@suryawij" target="_blank" rel="noreferrer"><Icon name="tiktok" size={14} /> &nbsp;TikTok · @suryawij</a></li>
-            <li><a href="https://youtube.com/@itsmeshiyao" target="_blank" rel="noreferrer"><Icon name="youtube" size={14} /> &nbsp;YouTube · @itsmeshiyao</a></li>
+            <li><a href="https://instagram.com/suryawij" target="_blank" rel="noreferrer"><Icon name="instagram" size={14} /><span>Instagram · @suryawij</span></a></li>
+            <li><a href="https://tiktok.com/@suryawij" target="_blank" rel="noreferrer"><Icon name="tiktok" size={14} /><span>TikTok · @suryawij</span></a></li>
+            <li><a href="https://youtube.com/@itsmeshiyao" target="_blank" rel="noreferrer"><Icon name="youtube" size={14} /><span>YouTube · @itsmeshiyao</span></a></li>
           </ul>
         </div>
       </div>
@@ -532,7 +607,230 @@ const WhatsAppFloat = () =>
   </a>;
 
 
+// ────────── STAMP DUTY CALCULATOR ──────────
+// BSD tiers: [band size, rate] — effective 15 Feb 2023 (residential)
+const BSD_TIERS = [
+  { band: 180000,   rate: 0.01 },
+  { band: 180000,   rate: 0.02 },
+  { band: 640000,   rate: 0.03 },
+  { band: 500000,   rate: 0.04 },
+  { band: 1500000,  rate: 0.05 },
+  { band: Infinity, rate: 0.06 },
+];
+
+// ABSD rates by buyer type, indexed [1st, 2nd, 3rd+] — effective 27 Apr 2023
+const ABSD_RATES = {
+  sc:        [0,    0.20, 0.30],
+  spr:       [0.05, 0.30, 0.35],
+  foreigner: [0.60],
+  entity:    [0.65],
+};
+
+function calcBSD(price) {
+  let rem = price; let total = 0;
+  const rows = [];
+  for (const { band, rate } of BSD_TIERS) {
+    if (rem <= 0) break;
+    const taxable = band === Infinity ? rem : Math.min(rem, band);
+    const tax = taxable * rate;
+    rows.push({ taxable, rate, tax });
+    rem -= taxable; total += tax;
+  }
+  return { total, rows };
+}
+
+function getAbsdRate(type, count) {
+  const rates = ABSD_RATES[type] || [0];
+  return rates[Math.min(count - 1, rates.length - 1)];
+}
+
+const fmtSGD = (n) => "S$" + Math.round(n).toLocaleString("en-SG");
+const fmtPct = (r) => (r * 100 % 1 === 0 ? (r * 100).toFixed(0) : (r * 100).toFixed(1)) + "%";
+
+const StampDutyCalc = () => {
+  const [price, setPrice] = React.useState(1500000);
+  const [rawVal, setRawVal] = React.useState("1,500,000");
+  const [buyerType, setBuyerType] = React.useState("sc");
+  const [propCount, setPropCount] = React.useState(1);
+
+  const MIN = 100000; const MAX = 10000000;
+
+  const commitPrice = (num) => {
+    const clamped = Math.max(0, num);
+    setPrice(clamped);
+    setRawVal(clamped > 0 ? clamped.toLocaleString("en-SG") : "");
+  };
+
+  const handleTextChange = (e) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    setRawVal(raw ? Number(raw).toLocaleString("en-SG") : "");
+    setPrice(parseInt(raw, 10) || 0);
+  };
+
+  const handleSlider = (e) => commitPrice(parseInt(e.target.value, 10));
+  const showCount = buyerType === "sc" || buyerType === "spr";
+
+  const bsd = calcBSD(price);
+  const absdRate = getAbsdRate(buyerType, showCount ? propCount : 1);
+  const absdAmt  = price * absdRate;
+  const total    = bsd.total + absdAmt;
+  const pct      = price > 0 ? total / price : 0;
+
+  const sliderPct = price <= 0 ? 0 :
+    ((Math.min(Math.max(price, MIN), MAX) - MIN) / (MAX - MIN) * 100).toFixed(2);
+  const sliderBg = `linear-gradient(to right,var(--gold) ${sliderPct}%,var(--line) ${sliderPct}%)`;
+
+  return (
+    <section className="section" id="stamp-duty">
+      <div className="wrap">
+        <Reveal className="section-head center">
+          <div className="eyebrow">Calculators</div>
+          <h2 className="h-section">Stamp duty <em>calculator.</em></h2>
+          <p>Estimate BSD and ABSD based on current IRAS rates.<br />Figures are indicative — verify with your lawyer before committing.</p>
+        </Reveal>
+
+        <Reveal>
+          <div className="sdc-grid">
+
+            {/* ── INPUTS ── */}
+            <div className="sdc-inputs">
+
+              <div className="sdc-field">
+                <label className="sdc-label">Property price</label>
+                <div className="sdc-price-wrap">
+                  <span className="sdc-prefix">S$</span>
+                  <input className="sdc-price-input" type="text" inputMode="numeric"
+                    value={rawVal} onChange={handleTextChange} placeholder="e.g. 1,500,000" />
+                </div>
+                <input type="range" className="sdc-slider"
+                  min={MIN} max={MAX} step={50000}
+                  value={Math.min(Math.max(price, MIN), MAX)}
+                  onChange={handleSlider}
+                  style={{ background: sliderBg }} />
+                <div className="sdc-slider-labels"><span>S$100K</span><span>S$10M</span></div>
+              </div>
+
+              <div className="sdc-field">
+                <label className="sdc-label">Buyer profile</label>
+                <div className="sdc-seg">
+                  {[
+                    { val: "sc",        label: "Citizen" },
+                    { val: "spr",       label: "PR" },
+                    { val: "foreigner", label: "Foreigner" },
+                    { val: "entity",    label: "Entity" },
+                  ].map(o =>
+                    <button key={o.val}
+                      className={`sdc-seg-btn${buyerType === o.val ? " active" : ""}`}
+                      onClick={() => { setBuyerType(o.val); setPropCount(1); }}>
+                      {o.label}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {showCount && (
+                <div className="sdc-field">
+                  <label className="sdc-label">Property count</label>
+                  <div className="sdc-seg">
+                    {[
+                      { val: 1, label: "1st" },
+                      { val: 2, label: "2nd" },
+                      { val: 3, label: "3rd +" },
+                    ].map(o =>
+                      <button key={o.val}
+                        className={`sdc-seg-btn${propCount === o.val ? " active" : ""}`}
+                        onClick={() => setPropCount(o.val)}>
+                        {o.label}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Rate reference card */}
+              <div style={{
+                padding: "18px 20px", borderRadius: 10,
+                background: "var(--gold-soft)", border: "1px solid var(--gold-line)",
+                fontSize: 12, lineHeight: 1.7, color: "var(--ink-2)"
+              }}>
+                <div style={{ fontWeight: 600, color: "var(--ink)", marginBottom: 6, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                  Current rates used
+                </div>
+                <div>BSD: 1–6% progressive (from 15 Feb 2023)</div>
+                {buyerType === "sc" && <div>ABSD: 0% / 20% / 30% (1st / 2nd / 3rd+)</div>}
+                {buyerType === "spr" && <div>ABSD: 5% / 30% / 35% (1st / 2nd / 3rd+)</div>}
+                {buyerType === "foreigner" && <div>ABSD: 60% (any property)</div>}
+                {buyerType === "entity" && <div>ABSD: 65% (any property)</div>}
+                <div style={{ marginTop: 6, color: "var(--mute)", fontSize: 11 }}>
+                  Effective 27 Apr 2023 ·{" "}
+                  <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer%27s-stamp-duty-(absd)"
+                    target="_blank" rel="noreferrer"
+                    style={{ color: "var(--gold)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                    IRAS source
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* ── RESULTS ── */}
+            <div className="sdc-results">
+
+              <div className="sdc-res-block">
+                <div className="sdc-res-head">
+                  <span>Buyer's Stamp Duty (BSD)</span>
+                  <span className="sdc-res-amt">{price > 0 ? fmtSGD(bsd.total) : "—"}</span>
+                </div>
+                {price > 0 && (
+                  <div className="sdc-breakdown">
+                    {bsd.rows.map((row, i) =>
+                      <div key={i} className="sdc-bd-row">
+                        <span>{fmtPct(row.rate)} × {fmtSGD(row.taxable)}</span>
+                        <span>{fmtSGD(row.tax)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="sdc-res-block">
+                <div className="sdc-res-head">
+                  <span>Additional BSD (ABSD) · {fmtPct(absdRate)}</span>
+                  <span className={`sdc-res-amt${absdAmt > 0 ? " sdc-absd-amt" : ""}`}>
+                    {price > 0 ? fmtSGD(absdAmt) : "—"}
+                  </span>
+                </div>
+                {price > 0 && absdRate === 0 && (
+                  <p className="sdc-absd-nil">No ABSD payable on this property for your profile.</p>
+                )}
+              </div>
+
+              <div className="sdc-total">
+                <div>
+                  <div className="sdc-total-label">Total stamp duty</div>
+                  {price > 0 && <div className="sdc-total-pct">{fmtPct(pct)} of purchase price</div>}
+                </div>
+                <div className="sdc-total-amt">{price > 0 ? fmtSGD(total) : "—"}</div>
+              </div>
+
+              <p className="sdc-disclaimer">
+                BSD rates effective 15 Feb 2023 · ABSD rates effective 27 Apr 2023.{" "}
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/buyer%27s-stamp-duty-(bsd)"
+                  target="_blank" rel="noreferrer">BSD source</a>{" · "}
+                <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer%27s-stamp-duty-(absd)"
+                  target="_blank" rel="noreferrer">ABSD source</a>
+                <br />
+                Figures are indicative only. Always verify with IRAS or your conveyancing lawyer before signing any option to purchase.
+              </p>
+            </div>
+
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
 Object.assign(window, {
   Nav, Hero, About, Services, WhyMe, Insights,
-  Testimonials, FAQ, Lead, Footer, WhatsAppFloat
+  Testimonials, StampDutyCalc, FAQ, Lead, Footer, WhatsAppFloat
 });

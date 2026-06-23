@@ -16,6 +16,31 @@ function App() {
     root.classList.toggle("font-sans-display", t.displayFont === "sans");
   }, [t.dark, t.density, t.goldIntensity, t.displayFont]);
 
+  // Meta Pixel — track WhatsApp / call / email clicks as Contact events
+  React.useEffect(() => {
+    // Pre-fill a friendly starter message on any bare WhatsApp link
+    const defaultMsg = "Hi Shi Yao, I'd like to find out more about my property options.";
+    document.querySelectorAll('a[href*="wa.me"]').forEach((a) => {
+      const href = a.getAttribute("href") || "";
+      if (!/[?&]text=/.test(href)) {
+        a.setAttribute("href", href + (href.includes("?") ? "&" : "?") + "text=" + encodeURIComponent(defaultMsg));
+      }
+    });
+
+    const onClick = (e) => {
+      const a = e.target.closest && e.target.closest("a[href]");
+      if (!a || !window.fbq) return;
+      const href = a.getAttribute("href") || "";
+      if (href.includes("wa.me") || href.startsWith("tel:")) {
+        fbq("track", "Contact", { method: href.includes("wa.me") ? "whatsapp" : "phone" });
+      } else if (href.startsWith("mailto:")) {
+        fbq("track", "Contact", { method: "email" });
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   return (
     <>
       <Nav />
@@ -25,6 +50,7 @@ function App() {
         <Services />
         <WhyMe />
         <Insights />
+        <StampDutyCalc />
         <Testimonials style={t.testimonialStyle} />
         <FAQ />
         <Lead />
