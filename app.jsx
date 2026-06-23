@@ -50,7 +50,6 @@ function App() {
         <Services />
         <WhyMe />
         <Insights />
-        <StampDutyCalc />
         <Testimonials style={t.testimonialStyle} />
         <FAQ />
         <Lead />

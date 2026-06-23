@@ -5,8 +5,7 @@ const __R = (id, fallback) => (window.__resources && window.__resources[id]) || 
 // Calculator menu
 const CALCULATORS = [
   { label: "New Launch Calculator", href: "New Launch Calculator.html", live: true },
-  { label: "Stamp Duty Calculator", href: "#stamp-duty", live: true },
-  { label: "Loan Eligibility Calculator", href: "calculators.html", live: false },
+  { label: "Stamp Duty Calculator", href: "Stamp Duty Calculator.html", live: true },
 ];
 
 const CalcDropdown = () =>
@@ -566,8 +565,7 @@ const Footer = () =>
           <h5>Calculators</h5>
           <ul>
             <li><a href="New Launch Calculator.html">New Launch Calculator</a></li>
-            <li><a href="calculators.html" style={{ opacity: 0.55 }}>Loan Eligibility · Soon</a></li>
-            <li><a href="#stamp-duty">Stamp Duty Calculator</a></li>
+            <li><a href="Stamp Duty Calculator.html">Stamp Duty Calculator</a></li>
           </ul>
         </div>
         <div>

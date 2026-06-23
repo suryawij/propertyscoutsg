@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stamp Duty Calculator — Property Scout</title>
+<meta name="description" content="Calculate your Buyer's Stamp Duty (BSD) and Additional Buyer's Stamp Duty (ABSD) instantly. Singapore IRAS rates — by Shi Yao, PropNex." />
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2206597736798243');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --ink: #14110b;
+  --ink-60: rgba(20,17,11,0.6);
+  --ink-30: rgba(20,17,11,0.32);
+  --ink-10: rgba(20,17,11,0.09);
+  --gold: #bd9859;
+  --gold-light: #ead7b3;
+  --gold-dim: rgba(189,152,89,0.13);
+  --gold-deep: #8f7340;
+  --cream: #faf8f3;
+  --white: #ffffff;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV (matches New Launch Calculator) ── */
+.ps-nav {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: color-mix(in oklab, var(--cream) 78%, transparent);
+  border-bottom: 1px solid var(--ink-10);
+}
+.ps-nav-inner {
+  max-width: 1320px; margin: 0 auto;
+  padding: 0 clamp(20px,4vw,48px);
+  height: 72px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.ps-brand {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none; flex-shrink: 0;
+}
+.ps-brand img { height: 36px; width: auto; display: block; }
+.ps-brand-sub {
+  font-size: 11px; color: var(--ink-60);
+  letter-spacing: 0.06em; white-space: nowrap;
+  padding-left: 14px; border-left: 1px solid var(--ink-10);
+}
+.ps-nav-links {
+  display: flex; align-items: center; gap: 28px;
+  flex: 1; justify-content: center;
+}
+.ps-nav-links a {
+  font-size: 13px; color: var(--ink-60); text-decoration: none;
+  font-weight: 400; letter-spacing: 0.01em; position: relative;
+  transition: color .2s ease;
+}
+.ps-nav-links a:hover, .ps-nav-links a.active { color: var(--ink); }
+.ps-nav-links a::after {
+  content: ""; position: absolute; left: 0; bottom: -2px;
+  width: 0; height: 1px; background: var(--gold); transition: width .3s ease;
+}
+.ps-nav-links a:hover::after, .ps-nav-links a.active::after { width: 100%; }
+
+/* Dropdown */
+.ps-dd { position: relative; }
+.ps-dd-trigger {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--ink-60); cursor: pointer;
+  font-family: 'Inter', sans-serif; font-weight: 400;
+  letter-spacing: 0.01em; position: relative;
+  transition: color .2s ease;
+}
+.ps-dd-trigger.active, .ps-dd:focus-within .ps-dd-trigger { color: var(--ink); }
+.ps-dd-chev { transition: transform .2s ease; }
+.ps-dd:focus-within .ps-dd-chev { transform: rotate(180deg); }
+.ps-dd-menu {
+  position: absolute; top: calc(100% + 14px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--white); border-radius: 14px;
+  padding: 8px; min-width: 220px;
+  box-shadow: 0 8px 40px -8px rgba(20,17,11,.18), 0 0 0 1px var(--ink-10);
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  transform: translateX(-50%) translateY(-6px);
+}
+.ps-dd:focus-within .ps-dd-menu {
+  opacity: 1; pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.ps-dd-menu::before {
+  content: ""; position: absolute; top: -10px; left: 0; right: 0; height: 10px;
+}
+.ps-dd-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 11px 14px; border-radius: 9px;
+  font-size: 13px; color: var(--ink); text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+.ps-dd-item::after { display: none; }
+.ps-dd-item:hover { background: rgba(189,152,89,0.10); color: var(--gold); }
+.ps-dd-item.active { color: var(--gold); }
+.ps-dd-item.is-soon { color: var(--ink-30); cursor: default; }
+.ps-dd-item.is-soon:hover { background: transparent; color: var(--ink-30); }
+.ps-dd-soon {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  background: var(--gold-dim); color: var(--gold);
+  padding: 3px 8px; border-radius: 99px; font-style: normal;
+}
+.ps-dd-sep { height: 1px; background: var(--ink-10); margin: 6px 4px; }
+.ps-nav-cta { display: flex; align-items: center; gap: 12px; }
+.ps-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 18px; border-radius: 999px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  text-decoration: none; border: 1px solid transparent;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.ps-btn:hover { transform: translateY(-1px); }
+.ps-btn-wa { background: #25d366; color: #fff; }
+.ps-btn-wa:hover { background: #1fb858; }
+.ps-btn-primary { background: var(--ink); color: var(--cream); }
+.ps-btn-primary:hover { background: var(--gold); color: #14110b; }
+
+@media (max-width: 1024px) { .ps-nav-links { display: none; } }
+@media (max-width: 560px) {
+  .ps-brand-sub { display: none; }
+  .ps-nav-cta .ps-btn-primary { display: none; }
+}
+
+/* ── PAGE ── */
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+/* ── HERO ── */
+.hero { margin-bottom: 48px; }
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px; font-weight: 300; line-height: 1.1;
+  letter-spacing: -0.01em; color: var(--ink);
+  margin-bottom: 12px;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-sub { font-size: 14px; color: var(--ink-60); font-weight: 300; letter-spacing: 0.02em; }
+
+/* ── RULE ── */
+.rule {
+  display: flex; align-items: center; gap: 12px; margin: 32px 0;
+}
+.rule::before, .rule::after {
+  content: ''; flex: 1; height: 1px; background: var(--ink-10);
+}
+.rule-diamond {
+  width: 5px; height: 5px; background: var(--gold);
+  transform: rotate(45deg); flex-shrink: 0;
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); }
+
+/* ── GRID LAYOUT ── */
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 0 48px;
+  align-items: start;
+}
+.calc-inputs {}
+.calc-results { position: sticky; top: 90px; }
+
+/* ── FIELDS ── */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.field label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-60);
+}
+.price-wrap {
+  display: flex; align-items: center;
+  border: 1px solid var(--ink-10);
+  border-bottom: 1px solid rgba(14,14,14,0.25);
+  border-radius: var(--radius);
+  background: var(--white);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.price-wrap:focus-within { border-color: var(--gold); border-bottom-color: var(--gold); }
+.price-prefix {
+  padding: 0 14px; height: 44px; display: flex; align-items: center;
+  font-size: 13px; color: var(--ink-60); font-weight: 500;
+  border-right: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--cream) 60%, var(--white));
+  flex-shrink: 0;
+}
+.price-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  padding: 0 14px; height: 44px; min-width: 0;
+  font-size: 15px; font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 400;
+  color: var(--ink);
+}
+
+/* ── SLIDER ── */
+.slider-field { margin-bottom: 28px; }
+.slider-track-wrap {
+  position: relative; height: 20px; display: flex; align-items: center;
+}
+.slider-track-bg {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: var(--ink-10); border-radius: 1px;
+}
+.slider-track-fill {
+  position: absolute; left: 0; height: 2px;
+  background: var(--gold); border-radius: 1px; pointer-events: none;
+}
+input[type=range] {
+  -webkit-appearance: none; position: relative;
+  width: 100%; height: 20px; background: transparent;
+  outline: none; cursor: pointer; margin: 0; z-index: 1;
+}
+input[type=range]::-webkit-slider-runnable-track { height: 2px; background: transparent; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--gold);
+  box-shadow: 0 1px 6px rgba(189,152,89,.4);
+  margin-top: -8px; cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--gold);
+  box-shadow: 0 1px 6px rgba(189,152,89,.4); cursor: pointer;
+}
+.slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-30); margin-top: 6px;
+}
+
+/* ── SEGMENTED CONTROL ── */
+.seg-wrap { display: flex; border: 1px solid var(--ink-10); border-radius: var(--radius); overflow: hidden; }
+.seg-btn {
+  flex: 1; height: 44px; font-size: 13px; font-weight: 500;
+  background: var(--white); color: var(--ink-60);
+  border: none; border-right: 1px solid var(--ink-10);
+  cursor: pointer; transition: background .14s, color .14s; text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn.active { background: var(--gold); color: #14110b; font-weight: 600; }
+.seg-btn:hover:not(.active) { background: var(--gold-dim); color: var(--ink); }
+
+/* ── RATES CARD ── */
+.rates-card {
+  background: var(--gold-dim); border: 1px solid var(--gold-light);
+  border-radius: var(--radius-lg); padding: 16px 18px;
+  font-size: 12px; line-height: 1.8; color: var(--ink-60);
+  margin-top: 4px;
+}
+.rates-card-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink); margin-bottom: 6px;
+}
+.rates-card a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── RESULTS PANEL ── */
+.results-panel {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--ink-10);
+  box-shadow: 0 4px 32px -8px rgba(20,17,11,.12);
+  overflow: hidden;
+}
+.res-row {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--ink-10);
+}
+.res-row:last-of-type { border-bottom: none; }
+.res-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+}
+.res-head-label { font-size: 13px; font-weight: 500; color: var(--ink-60); }
+.res-head-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 19px; font-weight: 500; color: var(--ink); white-space: nowrap;
+}
+.res-head-amt.absd { color: var(--gold-deep); }
+.bsd-tiers {
+  margin-top: 10px; display: flex; flex-direction: column; gap: 4px;
+}
+.tier-row {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-30);
+}
+.absd-nil {
+  margin-top: 8px; font-size: 12px; color: var(--ink-30); font-style: italic;
+}
+.total-row {
+  padding: 22px 24px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  background: var(--gold);
+}
+.total-lhs .total-label {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,.75); font-weight: 500;
+}
+.total-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 34px; font-weight: 400; color: var(--white); white-space: nowrap;
+}
+.disclaimer {
+  padding: 14px 24px; font-size: 11px; color: var(--ink-30);
+  line-height: 1.7; border-top: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--cream) 50%, var(--white));
+}
+.disclaimer a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── FOOTER ── */
+.footer {
+  max-width: 820px; margin: 0 auto;
+  padding: 40px 24px 48px;
+  border-top: 1px solid var(--ink-10);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.footer-brand {
+  font-family: 'Playfair Display', serif; font-size: 15px; color: var(--ink);
+}
+.footer-disc {
+  font-size: 11px; color: var(--ink-30); max-width: 56ch;
+  line-height: 1.7; margin-top: 6px;
+}
+.back {
+  font-size: 12px; color: var(--ink-60); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+  transition: color .2s;
+}
+.back:hover { color: var(--gold); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero  { animation: fadeUp .5s ease both .05s; }
+.calc-grid { animation: fadeUp .5s ease both .1s; }
+
+@media (max-width: 720px) {
+  .calc-grid { grid-template-columns: 1fr; }
+  .calc-results { position: static; margin-top: 8px; }
+  .hero-title { font-size: 38px; }
+}
+
+<template id="__bundler_thumbnail" data-bg-color="#14110b">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#14110b"/>
+    <g transform="translate(460,220)" fill="none" stroke="#bd9859" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M40 0 h200 a20 20 0 0 1 20 20 v320 a20 20 0 0 1-20 20 H40 a20 20 0 0 1-20-20 V20 a20 20 0 0 1 20-20z"/>
+      <line x1="20" y1="80" x2="260" y2="80"/>
+      <line x1="60" y1="130" x2="220" y2="130"/>
+      <line x1="60" y1="165" x2="220" y2="165"/>
+      <line x1="60" y1="200" x2="220" y2="200"/>
+      <line x1="60" y1="250" x2="220" y2="250"/>
+      <line x1="60" y1="285" x2="160" y2="285"/>
+    </g>
+    <text x="600" y="640" text-anchor="middle" font-family="Georgia, serif" font-size="46" fill="#faf8f3">Stamp Duty Calculator</text>
+    <text x="600" y="690" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#bd9859">BSD · ABSD</text>
+  </svg>
+</template>
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="ps-nav">
+  <div class="ps-nav-inner">
+    <a class="ps-brand" href="index.html" aria-label="Property Scout — home">
+      <img src="assets/property-scout-logo.png" alt="Property Scout" />
+      <span class="ps-brand-sub">Shi Yao · PropNex</span>
+    </a>
+    <div class="ps-nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#services">Services</a>
+      <div class="ps-dd" tabindex="0">
+        <span class="ps-dd-trigger active">Calculators
+          <svg class="ps-dd-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+        <div class="ps-dd-menu">
+          <a class="ps-dd-item" href="calculators.html"><span>All calculators</span></a>
+          <div class="ps-dd-sep"></div>
+          <a class="ps-dd-item" href="New Launch Calculator.html"><span>New Launch Calculator</span></a>
+          <a class="ps-dd-item active" href="Stamp Duty Calculator.html"><span>Stamp Duty Calculator</span></a>
+        </div>
+      </div>
+      <a href="index.html#testimonial">Testimonial</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="ps-nav-cta">
+      <a class="ps-btn ps-btn-wa" href="https://wa.me/6588877800?text=Hi%20Shi%20Yao%2C%20I'd%20like%20to%20find%20out%20more%20about%20my%20property%20options." target="_blank" rel="noreferrer">WhatsApp</a>
+      <a class="ps-btn ps-btn-primary" href="index.html#contact">Book consultation</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <div class="hero">
+    <h1 class="hero-title">Stamp Duty <em>Calculator</em></h1>
+    <p class="hero-sub">Estimate your BSD and ABSD instantly — before you commit to any offer.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- INPUTS -->
+    <div class="calc-inputs">
+
+      <div class="section-label">Property price</div>
+
+      <div class="field">
+        <label>Purchase price (SGD)</label>
+        <div class="price-wrap">
+          <span class="price-prefix">S$</span>
+          <input class="price-input" type="text" id="price-display" value="1,500,000" inputmode="numeric" autocomplete="off" />
+          <input type="hidden" id="price-val" value="1500000" />
+        </div>
+      </div>
+
+      <div class="slider-field">
+        <div class="slider-track-wrap">
+          <div class="slider-track-bg"></div>
+          <div class="slider-track-fill" id="price-fill" style="width:14.4%"></div>
+          <input type="range" id="price-slider" min="100000" max="10000000" step="50000" value="1500000" />
+        </div>
+        <div class="slider-labels"><span>S$100K</span><span>S$10M</span></div>
+      </div>
+
+      <div class="rule"><div class="rule-diamond"></div></div>
+
+      <div class="section-label">Buyer profile</div>
+
+      <div class="field">
+        <label>Citizenship / entity</label>
+        <div class="seg-wrap" id="buyer-seg">
+          <button class="seg-btn active" data-val="sc">Citizen</button>
+          <button class="seg-btn" data-val="spr">PR</button>
+          <button class="seg-btn" data-val="foreigner">Foreigner</button>
+          <button class="seg-btn" data-val="entity">Entity</button>
+        </div>
+      </div>
+
+      <div class="field" id="count-field">
+        <label>Property count</label>
+        <div class="seg-wrap" id="count-seg">
+          <button class="seg-btn active" data-val="1">1st</button>
+          <button class="seg-btn" data-val="2">2nd</button>
+          <button class="seg-btn" data-val="3">3rd +</button>
+        </div>
+      </div>
+
+      <div class="rates-card" id="rates-card">
+        <div class="rates-card-title">Rates applied</div>
+        <div id="rates-bsd-line">BSD: 1–6% progressive (from 15 Feb 2023)</div>
+        <div id="rates-absd-line">ABSD: 0% (1st property)</div>
+        <div style="margin-top:6px;font-size:11px;">
+          Effective 27 Apr 2023 ·
+          <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/buyer%27s-stamp-duty-(bsd)" target="_blank" rel="noreferrer">BSD</a> ·
+          <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer%27s-stamp-duty-(absd)" target="_blank" rel="noreferrer">ABSD</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESULTS -->
+    <div class="calc-results">
+
+      <div class="section-label">Your estimate</div>
+
+      <div class="results-panel">
+
+        <div class="res-row">
+          <div class="res-head">
+            <span class="res-head-label">Buyer's Stamp Duty (BSD)</span>
+            <span class="res-head-amt" id="bsd-total">S$36,600</span>
+          </div>
+          <div class="bsd-tiers" id="bsd-tiers"></div>
+        </div>
+
+        <div class="res-row">
+          <div class="res-head">
+            <span class="res-head-label" id="absd-label">ABSD · 0%</span>
+            <span class="res-head-amt absd" id="absd-total">S$0</span>
+          </div>
+          <div class="absd-nil" id="absd-nil" style="display:none">No ABSD payable for your profile on this property.</div>
+        </div>
+
+        <div class="total-row">
+          <div class="total-lhs">
+            <div class="total-label">Total stamp duty</div>
+          </div>
+          <div class="total-amt" id="total-amt">S$36,600</div>
+        </div>
+
+        <div class="disclaimer">
+          BSD rates effective 15 Feb 2023 · ABSD rates effective 27 Apr 2023.<br />
+          Figures are indicative only. Verify with IRAS or your conveyancing lawyer before signing any option to purchase.
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand">Property Scout</div>
+    <p class="footer-disc">CEA Registered Salesperson (R057878B) under PropNex Realty Pte Ltd. Figures are estimates for illustrative purposes only and do not constitute financial or legal advice.</p>
+  </div>
+  <a class="back" href="index.html">&#8592;&nbsp; Back to home</a>
+</footer>
+
+<script>
+// ── BSD tiers (residential, 15 Feb 2023) ──
+var BSD_TIERS = [
+  { band: 180000,   rate: 0.01 },
+  { band: 180000,   rate: 0.02 },
+  { band: 640000,   rate: 0.03 },
+  { band: 500000,   rate: 0.04 },
+  { band: 1500000,  rate: 0.05 },
+  { band: Infinity, rate: 0.06 }
+];
+
+// ── ABSD rates [1st, 2nd, 3rd+] (27 Apr 2023) ──
+var ABSD_RATES = {
+  sc:        [0,    0.20, 0.30],
+  spr:       [0.05, 0.30, 0.35],
+  foreigner: [0.60],
+  entity:    [0.65]
+};
+
+var ABSD_LABELS = {
+  sc:        ['0% / 20% / 30% (1st / 2nd / 3rd+)', '20% / 30% (2nd / 3rd+)', '30% (3rd+ property)'],
+  spr:       ['5% / 30% / 35% (1st / 2nd / 3rd+)', '30% / 35% (2nd / 3rd+)', '35% (3rd+ property)'],
+  foreigner: ['60% (any property)'],
+  entity:    ['65% (any property)']
+};
+
+var buyerType = 'sc';
+var propCount = 1;
+
+function fmtSGD(n) {
+  return 'S$' + Math.round(n).toLocaleString('en-SG');
+}
+function fmtPct(r) {
+  var p = r * 100;
+  return (p % 1 === 0 ? p.toFixed(0) : p.toFixed(1)) + '%';
+}
+
+function calcBSD(price) {
+  var rem = price, total = 0, rows = [];
+  for (var i = 0; i < BSD_TIERS.length; i++) {
+    if (rem <= 0) break;
+    var t = BSD_TIERS[i];
+    var taxable = t.band === Infinity ? rem : Math.min(rem, t.band);
+    var tax = taxable * t.rate;
+    rows.push({ taxable: taxable, rate: t.rate, tax: tax });
+    rem -= taxable; total += tax;
+  }
+  return { total: total, rows: rows };
+}
+
+function getAbsdRate() {
+  var rates = ABSD_RATES[buyerType] || [0];
+  return rates[Math.min(propCount - 1, rates.length - 1)];
+}
+
+function calculate() {
+  var price = parseInt(document.getElementById('price-val').value, 10) || 0;
+  var bsd = calcBSD(price);
+  var absdRate = getAbsdRate();
+  var absdAmt = price * absdRate;
+  var total = bsd.total + absdAmt;
+
+  // BSD total
+  document.getElementById('bsd-total').textContent = price > 0 ? fmtSGD(bsd.total) : '—';
+
+  // BSD breakdown rows
+  var tiersEl = document.getElementById('bsd-tiers');
+  tiersEl.innerHTML = '';
+  if (price > 0) {
+    bsd.rows.forEach(function(r) {
+      var row = document.createElement('div');
+      row.className = 'tier-row';
+      row.innerHTML = '<span>' + fmtPct(r.rate) + ' \u00d7 ' + fmtSGD(r.taxable) + '</span><span>' + fmtSGD(r.tax) + '</span>';
+      tiersEl.appendChild(row);
+    });
+  }
+
+  // ABSD
+  document.getElementById('absd-label').textContent = 'ABSD \u00b7 ' + fmtPct(absdRate);
+  document.getElementById('absd-total').textContent = price > 0 ? fmtSGD(absdAmt) : '—';
+  document.getElementById('absd-nil').style.display = (price > 0 && absdRate === 0) ? 'block' : 'none';
+
+  // Total
+  document.getElementById('total-amt').textContent = price > 0 ? fmtSGD(total) : '—';
+
+  // Rates card
+  var absdLabels = ABSD_LABELS[buyerType] || ['—'];
+  var idx = Math.min(propCount - 1, absdLabels.length - 1);
+  document.getElementById('rates-absd-line').textContent = 'ABSD: ' + absdLabels[idx];
+}
+
+// Price text input
+document.getElementById('price-display').addEventListener('input', function() {
+  var raw = this.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw, 10) || 0;
+  this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+  document.getElementById('price-val').value = num;
+  // sync slider
+  var slider = document.getElementById('price-slider');
+  slider.value = Math.min(Math.max(num, 100000), 10000000);
+  updateFill();
+  calculate();
+});
+
+// Slider
+var slider = document.getElementById('price-slider');
+var fill = document.getElementById('price-fill');
+
+function updateFill() {
+  var min = 100000, max = 10000000;
+  var val = parseInt(slider.value, 10);
+  var pct = ((val - min) / (max - min) * 100).toFixed(2);
+  fill.style.width = pct + '%';
+}
+
+slider.addEventListener('input', function() {
+  var val = parseInt(this.value, 10);
+  document.getElementById('price-val').value = val;
+  document.getElementById('price-display').value = val.toLocaleString('en-SG');
+  updateFill();
+  calculate();
+});
+
+// Buyer type seg
+document.getElementById('buyer-seg').addEventListener('click', function(e) {
+  var btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  buyerType = btn.dataset.val;
+  this.querySelectorAll('.seg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  // Show/hide property count
+  var showCount = buyerType === 'sc' || buyerType === 'spr';
+  document.getElementById('count-field').style.display = showCount ? '' : 'none';
+  propCount = 1;
+  document.getElementById('count-seg').querySelectorAll('.seg-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i === 0);
+  });
+  calculate();
+});
+
+// Property count seg
+document.getElementById('count-seg').addEventListener('click', function(e) {
+  var btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  propCount = parseInt(btn.dataset.val, 10);
+  this.querySelectorAll('.seg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  calculate();
+});
+
+// Init
+updateFill();
+calculate();
+</script>
+</body>
+</html>
