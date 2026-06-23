@@ -65,8 +65,7 @@ const Nav = () => {
             <div className="mobile-link-group">
               <div className="mobile-link-label">Calculators</div>
               <a className="mobile-sublink" href="New Launch Calculator.html">New Launch Calculator</a>
-              <a className="mobile-sublink" href="#stamp-duty" onClick={close}>Stamp Duty Calculator</a>
-              <a className="mobile-sublink mobile-sublink-soon" href="calculators.html">Loan Eligibility <em>Soon</em></a>
+              <a className="mobile-sublink" href="Stamp Duty Calculator.html" onClick={close}>Stamp Duty Calculator</a>
             </div>
             <a className="mobile-link" href="#testimonial" onClick={close}>Testimonial</a>
             <a className="mobile-link" href="#contact" onClick={close}>Contact</a>
