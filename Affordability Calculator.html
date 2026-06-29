@@ -833,6 +833,7 @@ input[type=range]::-moz-range-thumb {
           </div>
           <div class="slider-labels"><span>S$2K / mo</span><span>S$50K / mo</span></div>
         </div>
+        <div id="co2-haircut-line" class="haircut-line" style="display:none;">After 30% haircut: <strong id="co2-haircut-amt">S$—</strong> / mo effective</div>
         <div class="field" style="margin-top:10px;">
           <label>Additional annual income <span style="font-size:10px;opacity:.55;text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
           <div class="price-wrap">
@@ -1119,6 +1120,15 @@ function updateAll() {
   } else {
     hcEl.style.display = 'none';
     hcLine.style.display = 'none';
+  }
+  var co2HaircutLine = document.getElementById('co2-haircut-line');
+  if (co2HaircutLine) {
+    if (hasCoBorrower && co2SelfEmployed) {
+      document.getElementById('co2-haircut-amt').textContent = fmtSGD(co2MainSalary);
+      co2HaircutLine.style.display = '';
+    } else {
+      co2HaircutLine.style.display = 'none';
+    }
   }
   var ruleDebts = document.getElementById('rule-debts');
   if (totalDebts > 0) {
