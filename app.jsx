@@ -52,6 +52,7 @@ function App() {
         <Insights />
         <Testimonials style={t.testimonialStyle} />
         <FAQ />
+        <CalcPromo />
         <Lead />
       </main>
       <Footer />

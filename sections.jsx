@@ -6,6 +6,7 @@ const __R = (id, fallback) => (window.__resources && window.__resources[id]) || 
 const CALCULATORS = [
   { label: "New Launch Calculator", href: "New Launch Calculator.html", live: true },
   { label: "Stamp Duty Calculator", href: "Stamp Duty Calculator.html", live: true },
+  { label: "Affordability Calculator", href: "Affordability Calculator.html", live: true },
 ];
 
 const CalcDropdown = () =>
@@ -66,6 +67,7 @@ const Nav = () => {
               <div className="mobile-link-label">Calculators</div>
               <a className="mobile-sublink" href="New Launch Calculator.html">New Launch Calculator</a>
               <a className="mobile-sublink" href="Stamp Duty Calculator.html" onClick={close}>Stamp Duty Calculator</a>
+              <a className="mobile-sublink" href="Affordability Calculator.html" onClick={close}>Affordability Calculator</a>
             </div>
             <a className="mobile-link" href="#testimonial" onClick={close}>Testimonial</a>
             <a className="mobile-link" href="#contact" onClick={close}>Contact</a>
@@ -565,6 +567,7 @@ const Footer = () =>
           <ul>
             <li><a href="New Launch Calculator.html">New Launch Calculator</a></li>
             <li><a href="Stamp Duty Calculator.html">Stamp Duty Calculator</a></li>
+            <li><a href="Affordability Calculator.html">Affordability Calculator</a></li>
           </ul>
         </div>
         <div>
@@ -827,7 +830,40 @@ const StampDutyCalc = () => {
   );
 };
 
+// ────────── CALCULATORS PROMO ──────────
+const calcToolsList = [
+  { icon: "calculator", title: "Affordability Calculator", body: "Find your max loan and property budget — factoring income, age, TDSR, MSR, and IWAA for co-borrowers.", href: "Affordability Calculator.html", badge: "Popular" },
+  { icon: "home", title: "New Launch Calculator", body: "Model the BUC progressive payment schedule, interest during construction, and full stamp duty breakdown.", href: "New Launch Calculator.html" },
+  { icon: "receipt", title: "Stamp Duty Calculator", body: "Compute BSD and ABSD instantly for any property type, buyer citizenship, and property ownership count.", href: "Stamp Duty Calculator.html" },
+];
+
+const CalcPromo = () =>
+  <section className="section" id="calculators">
+    <div className="wrap">
+      <div className="section-head">
+        <span className="eyebrow">Free tools</span>
+        <h2>Property calculators</h2>
+        <p>Run the numbers before your next move — built for Singapore buyers.</p>
+      </div>
+      <div className="calc-tools-grid">
+        {calcToolsList.map((c) =>
+          <a key={c.title} className="calc-tool-card" href={c.href}>
+            <div className="calc-tool-icon"><Icon name={c.icon} size={22} /></div>
+            <div className="calc-tool-title">
+              {c.title}
+              {c.badge && <span className="calc-tool-badge">{c.badge}</span>}
+            </div>
+            <p className="calc-tool-text">{c.body}</p>
+            <div className="calc-tool-link">
+              Open calculator <Icon name="arrow-right" size={14} />
+            </div>
+          </a>
+        )}
+      </div>
+    </div>
+  </section>;
+
 Object.assign(window, {
   Nav, Hero, About, Services, WhyMe, Insights,
-  Testimonials, StampDutyCalc, FAQ, Lead, Footer, WhatsAppFloat
+  Testimonials, StampDutyCalc, FAQ, Lead, Footer, WhatsAppFloat, CalcPromo
 });

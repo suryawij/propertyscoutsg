@@ -40,6 +40,10 @@ const Icon = ({ name, size = 20, stroke = 1.5, color = "currentColor" }) => {
       return (<svg {...props}><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg>);
     case "i-upgrader":
       return (<svg {...props}><path d="M3 21V11l5-4M21 21V7l-6-4-2 1.3"/><path d="M3 21h18M8 21v-5h3v5M16 21v-7h3v7"/></svg>);
+    case "chevron-down":
+      return (<svg {...props}><path d="M6 9l6 6 6-6"/></svg>);
+    case "i-calc":
+      return (<svg {...props}><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h0M12 10h0M16 10h0M8 14h0M12 14h0M16 14v4M8 18h4"/></svg>);
     default: return null;
   }
 };
@@ -63,9 +67,10 @@ const Reveal = ({ children, delay = 0, as: As = "div", ...rest }) => {
 };
 
 // Brand mark — uses the Property Scout logo image
+const __PSLogo = () => (window.__resources && window.__resources.logoPropertyScout) || "assets/property-scout-logo.png";
 const BrandMark = ({ variant = "nav" }) => (
   <a href="#top" className={`brand brand-${variant}`} aria-label="Property Scout — home">
-    <img className="brand-logo" src="assets/property-scout-logo.png" alt="Property Scout" />
+    <img className="brand-logo" src={__PSLogo()} alt="Property Scout" />
     {variant === "nav" && <div className="brand-sub-aside">Shi Yao · PropNex</div>}
   </a>
 );

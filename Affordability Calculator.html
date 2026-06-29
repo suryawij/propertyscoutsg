@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affordability Calculator — Property Scout</title>
+<meta name="description" content="How much can you borrow? Find your maximum home loan based on income, age and interest rate — with a chart that shows why affordability isn't linear. By Shi Yao, PropNex." />
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2206597736798243');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+:root {
+  --ink: #14110b;
+  --ink-60: rgba(20,17,11,0.6);
+  --ink-30: rgba(20,17,11,0.32);
+  --ink-10: rgba(20,17,11,0.09);
+  --gold: #bd9859;
+  --gold-light: #ead7b3;
+  --gold-dim: rgba(189,152,89,0.13);
+  --gold-deep: #8f7340;
+  --cream: #faf8f3;
+  --white: #ffffff;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+.ps-nav {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: color-mix(in oklab, var(--cream) 78%, transparent);
+  border-bottom: 1px solid var(--ink-10);
+}
+.ps-nav-inner {
+  max-width: 1320px; margin: 0 auto;
+  padding: 0 clamp(20px,4vw,48px);
+  height: 72px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.ps-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; flex-shrink: 0; }
+.ps-brand img { height: 36px; width: auto; display: block; }
+.ps-brand-sub {
+  font-size: 11px; color: var(--ink-60); letter-spacing: 0.06em;
+  white-space: nowrap; padding-left: 14px; border-left: 1px solid var(--ink-10);
+}
+.ps-nav-links {
+  display: flex; align-items: center; gap: 28px; flex: 1; justify-content: center;
+}
+.ps-nav-links a {
+  font-size: 13px; color: var(--ink-60); text-decoration: none;
+  font-weight: 400; letter-spacing: 0.01em; position: relative; transition: color .2s ease;
+}
+.ps-nav-links a:hover, .ps-nav-links a.active { color: var(--ink); }
+.ps-nav-links a::after {
+  content: ""; position: absolute; left: 0; bottom: -2px;
+  width: 0; height: 1px; background: var(--gold); transition: width .3s ease;
+}
+.ps-nav-links a:hover::after, .ps-nav-links a.active::after { width: 100%; }
+.ps-dd { position: relative; }
+.ps-dd-trigger {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--ink-60); cursor: pointer;
+  font-family: 'Inter', sans-serif; font-weight: 400;
+  letter-spacing: 0.01em; position: relative; transition: color .2s ease;
+}
+.ps-dd-trigger.active, .ps-dd:focus-within .ps-dd-trigger { color: var(--ink); }
+.ps-dd-chev { transition: transform .2s ease; }
+.ps-dd:focus-within .ps-dd-chev { transform: rotate(180deg); }
+.ps-dd-menu {
+  position: absolute; top: calc(100% + 14px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--white); border-radius: 14px;
+  padding: 8px; min-width: 230px;
+  box-shadow: 0 8px 40px -8px rgba(20,17,11,.18), 0 0 0 1px var(--ink-10);
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  transform: translateX(-50%) translateY(-6px);
+}
+.ps-dd:focus-within .ps-dd-menu {
+  opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0);
+}
+.ps-dd-menu::before { content: ""; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
+.ps-dd-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 11px 14px; border-radius: 9px; font-size: 13px; color: var(--ink);
+  text-decoration: none; transition: background .15s ease, color .15s ease;
+}
+.ps-dd-item::after { display: none; }
+.ps-dd-item:hover { background: rgba(189,152,89,0.10); color: var(--gold); }
+.ps-dd-item.active { color: var(--gold); }
+.ps-dd-sep { height: 1px; background: var(--ink-10); margin: 6px 4px; }
+.ps-nav-cta { display: flex; align-items: center; gap: 12px; }
+.ps-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px; padding: 0 18px; border-radius: 999px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+  text-decoration: none; border: 1px solid transparent;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.ps-btn:hover { transform: translateY(-1px); }
+.ps-btn-wa { background: #25d366; color: #fff; }
+.ps-btn-wa:hover { background: #1fb858; }
+.ps-btn-primary { background: var(--ink); color: var(--cream); }
+.ps-btn-primary:hover { background: var(--gold); color: #14110b; }
+.ps-btn-export {
+  background: transparent; color: var(--ink-60);
+  border: 1px solid var(--ink-10); gap: 6px;
+}
+.ps-btn-export:hover { background: var(--ink-10); color: var(--ink); border-color: var(--ink-30); }
+@media (max-width: 768px) { .ps-btn-export { display: none; } }
+@media (max-width: 1024px) { .ps-nav-links { display: none; } }
+@media (max-width: 560px) {
+  .ps-brand-sub { display: none; }
+  .ps-nav-cta .ps-btn-primary { display: none; }
+}
+
+/* ── PAGE ── */
+.page { max-width: 820px; margin: 0 auto; padding: 32px 24px 60px; }
+
+/* ── HERO ── */
+.hero { margin-bottom: 28px; }
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 40px); font-weight: 300; line-height: 1.1;
+  letter-spacing: -0.01em; color: var(--ink); margin-bottom: 10px;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-sub { font-size: 14px; color: var(--ink-60); font-weight: 300; letter-spacing: 0.02em; }
+
+/* ── RULE ── */
+.rule { display: flex; align-items: center; gap: 12px; margin: 32px 0; }
+.rule::before, .rule::after { content: ''; flex: 1; height: 1px; background: var(--ink-10); }
+.rule-diamond { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); flex-shrink: 0; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); }
+
+/* ── ASSESSABLE INCOME ROW ── */
+.assessable-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 12px 0 16px; border-bottom: 1px solid var(--gold-light); margin-bottom: 20px;
+}
+.assessable-label {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-60);
+}
+.assessable-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 20px; font-weight: 500; color: var(--ink);
+}
+
+/* ── GRID LAYOUT ── */
+.calc-grid {
+  display: grid; grid-template-columns: 1fr 1.5fr;
+  gap: 0 48px; align-items: start;
+}
+.calc-results { position: sticky; top: 90px; }
+
+/* ── FIELDS ── */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+.field label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-60);
+}
+
+/* Income text input */
+.price-wrap {
+  display: flex; align-items: center;
+  border: 1px solid var(--ink-10);
+  border-bottom: 1px solid rgba(14,14,14,0.25);
+  border-radius: var(--radius);
+  background: var(--white);
+  overflow: hidden; transition: border-color .2s;
+}
+.price-wrap:focus-within { border-color: var(--gold); border-bottom-color: var(--gold); }
+.price-prefix {
+  padding: 0 14px; height: 44px; display: flex; align-items: center;
+  font-size: 13px; color: var(--ink-60); font-weight: 500;
+  border-right: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--cream) 60%, var(--white));
+  flex-shrink: 0;
+}
+.price-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  padding: 0 14px; height: 44px; min-width: 0;
+  font-size: 15px; font-family: 'Space Grotesk', 'Inter', sans-serif; font-weight: 400;
+  color: var(--ink);
+}
+
+/* Slider value display */
+.slider-val {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 16px; font-weight: 400; color: var(--ink); letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* ── SLIDERS ── */
+.slider-field { margin-bottom: 16px; }
+.slider-track-wrap {
+  position: relative; height: 20px; display: flex; align-items: center;
+}
+.slider-track-bg {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: var(--ink-10); border-radius: 1px;
+}
+.slider-track-fill {
+  position: absolute; left: 0; height: 2px;
+  background: var(--gold); border-radius: 1px; pointer-events: none;
+}
+input[type=range] {
+  -webkit-appearance: none; position: relative;
+  width: 100%; height: 20px; background: transparent;
+  outline: none; cursor: pointer; margin: 0; z-index: 1;
+}
+input[type=range]::-webkit-slider-runnable-track { height: 2px; background: transparent; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--gold);
+  box-shadow: 0 1px 6px rgba(189,152,89,.4);
+  margin-top: -8px; cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--gold);
+  box-shadow: 0 1px 6px rgba(189,152,89,.4); cursor: pointer;
+}
+.slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--ink-30); margin-top: 6px;
+}
+
+/* ── SEGMENTED CONTROL ── */
+.seg-wrap { display: flex; border: 1px solid var(--ink-10); border-radius: var(--radius); overflow: hidden; }
+.seg-btn {
+  flex: 1; height: 40px; font-size: 13px; font-weight: 500;
+  background: var(--white); color: var(--ink-60);
+  border: none; border-right: 1px solid var(--ink-10);
+  cursor: pointer; transition: background .14s, color .14s; text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn.active { background: var(--gold); color: #14110b; font-weight: 600; }
+.seg-btn:hover:not(.active) { background: var(--gold-dim); color: var(--ink); }
+
+/* ── RULES CARD ── */
+.seg-btn-two-line { height: auto; min-height: 40px; padding: 8px 6px; line-height: 1.3; }
+.seg-btn-note { font-size: 10px; font-weight: 400; opacity: 0.75; display: block; }
+.add-income-hint {
+  margin-top: -10px; margin-bottom: 14px;
+  font-size: 12px; color: var(--ink-60);
+}
+.inputs-divider { height: 1px; background: var(--ink-10); margin: 14px 0 16px; }
+.haircut-line {
+  margin-top: -8px; margin-bottom: 20px;
+  font-size: 12px; color: var(--gold-deep); font-weight: 500;
+}
+.repay-line {
+  margin-top: -8px; margin-bottom: 24px;
+  font-size: 12px; color: var(--ink-60);
+}
+.rules-card {
+  background: var(--gold-dim); border: 1px solid var(--gold-light);
+  border-radius: var(--radius-lg); padding: 14px 16px;
+  font-size: 12px; line-height: 1.8; color: var(--ink-60);
+}
+.rules-card-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink); margin-bottom: 8px;
+}
+.rules-card div { margin-bottom: 2px; }
+
+/* ── RESULTS PANEL ── */
+.results-panel {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--ink-10);
+  box-shadow: 0 4px 32px -8px rgba(20,17,11,.12);
+  overflow: hidden;
+}
+.total-row {
+  padding: 22px 24px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  background: var(--gold);
+}
+.total-lhs .total-label {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,.75); font-weight: 500;
+}
+.total-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 30px; font-weight: 400; color: var(--white); white-space: nowrap;
+}
+.stat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.stat-item {
+  padding: 16px 24px; border-right: 1px solid var(--ink-10);
+}
+.stat-item:last-child { border-right: none; }
+.stat-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.10em;
+  color: var(--ink-60); margin-bottom: 5px; font-weight: 500;
+}
+.stat-val {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 16px; font-weight: 500; color: var(--ink);
+}
+.stat-sub {
+  font-size: 10px; color: var(--ink-30); margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* ── PROP CARDS ── */
+.prop-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--ink-10); overflow: hidden;
+  box-shadow: 0 2px 16px -4px rgba(20,17,11,.09);
+  margin-bottom: 14px;
+}
+.prop-card:last-child { margin-bottom: 0; }
+.prop-card-head {
+  padding: 13px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.prop-card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.prop-card-badge {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 99px;
+}
+.prop-card-private .prop-card-head { background: var(--gold); }
+.prop-card-private .prop-card-title { color: #fff; }
+.prop-card-private .prop-card-badge { background: rgba(255,255,255,0.25); color: #fff; }
+.prop-card-ec .prop-card-head { background: var(--gold); }
+.prop-card-ec .prop-card-title { color: #fff; }
+.prop-card-ec .prop-card-badge { background: rgba(255,255,255,0.25); color: #fff; }
+.prop-card-hdb .prop-card-head { background: var(--gold); }
+.prop-card-hdb .prop-card-title { color: #fff; }
+.prop-card-hdb .prop-card-badge { background: rgba(255,255,255,0.25); color: #fff; }
+.prop-stats { display: grid; grid-template-columns: 1fr 1fr; }
+.prop-stat {
+  padding: 12px 20px;
+  border-right: 1px solid var(--ink-10);
+  border-bottom: 1px solid var(--ink-10);
+}
+.prop-stat:nth-child(2n) { border-right: none; }
+.prop-stat:nth-child(n+3) { border-bottom: none; }
+.prop-stat-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-60); margin-bottom: 4px; font-weight: 500;
+}
+.prop-stat-val {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 14px; font-weight: 500; color: var(--ink);
+}
+.prop-stat-val.is-main { font-size: 20px; }
+/* ── RATE SECTION ── */
+.prop-card-rate {
+  padding: 13px 20px 15px;
+  border-top: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--cream) 60%, var(--white));
+}
+.prop-rate-row {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 10px; gap: 12px;
+}
+.prop-rate-label { font-size: 11px; color: var(--ink-60); flex-shrink: 0; padding-top: 4px; }
+.prop-rate-label strong { color: var(--gold-deep); font-weight: 600; }
+.prop-rate-monthly { text-align: right; }
+.prop-rate-monthly-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-60); font-weight: 500; margin-bottom: 2px;
+}
+.prop-rate-monthly-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 20px; font-weight: 500; color: var(--ink); line-height: 1.2;
+}
+
+.disclaimer {
+  padding: 14px 24px; font-size: 11px; color: var(--ink-30);
+  line-height: 1.7; border-top: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--cream) 50%, var(--white));
+}
+
+/* ── PROPERTY PRICE ROW ── */
+.price-row {
+  padding: 15px 24px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--ink-10);
+  background: color-mix(in oklab, var(--gold) 7%, var(--white));
+}
+.price-row-label {
+  font-size: 12px; font-weight: 500; color: var(--ink-60);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.price-row-sub {
+  font-size: 10px; letter-spacing: 0.05em; color: var(--ink-30); font-weight: 400;
+}
+.price-row-amt {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 30px; font-weight: 400; color: var(--ink); white-space: nowrap;
+}
+
+/* ── FOOTER ── */
+.footer {
+  max-width: 820px; margin: 0 auto;
+  padding: 40px 24px 48px;
+  border-top: 1px solid var(--ink-10);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.footer-brand { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--ink); }
+.footer-disc { font-size: 11px; color: var(--ink-30); max-width: 56ch; line-height: 1.7; margin-top: 6px; }
+.back {
+  font-size: 12px; color: var(--ink-60); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+  transition: color .2s;
+}
+.back:hover { color: var(--gold); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero      { animation: fadeUp .5s ease both .05s; }
+.calc-grid { animation: fadeUp .5s ease both .1s; }
+
+@media (max-width: 720px) {
+  .calc-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 38px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--ink-10); }
+  .stat-item:last-child { border-bottom: none; }
+}
+
+/* ── SECTION LABEL SERIF ── */
+.section-label-serif {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label-serif::after {
+  content: ''; flex: 1; height: 1px; background: var(--gold-light);
+}
+
+/* ── CO-BORROWER ── */
+.coborrower-card {
+  background: color-mix(in oklab, var(--gold) 6%, var(--white));
+  border: 1px solid var(--gold-light);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: none;
+  animation: fadeUp .3s ease both;
+}
+.coborrower-card.visible { display: block; }
+.coborrower-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.coborrower-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--gold-deep);
+}
+.coborrower-remove {
+  font-size: 11px; color: var(--ink-60); background: none; border: none;
+  cursor: pointer; padding: 4px 8px; border-radius: var(--radius);
+  transition: background .15s, color .15s;
+  font-family: 'Inter', sans-serif;
+}
+.coborrower-remove:hover { background: rgba(20,17,11,.07); color: var(--ink); }
+.add-profile-btn {
+  width: 100%; height: 44px;
+  border: 1.5px dashed var(--ink-10);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--ink-60); font-size: 13px; font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 16px;
+}
+.add-profile-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+/* ── DEBT GRID ── */
+.debt-grid {
+  display: flex; flex-direction: column;
+  gap: 6px; margin-bottom: 14px;
+}
+.debt-item { display: flex; align-items: center; gap: 12px; }
+.debt-label {
+  font-size: 10px; color: var(--ink-60); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  width: 76px; flex-shrink: 0;
+}
+.debt-item .price-wrap { flex: 1; }
+.price-wrap-sm .price-prefix { height: 36px; font-size: 12px; padding: 0 10px; }
+.price-wrap-sm .price-input  { height: 36px; font-size: 13px; padding: 0 10px; }
+
+/* ── Hero title row ── */
+.hero-title-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-btn-group { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.hero-title-row .hero-title { margin: 0; }
+.ps-btn-export {
+  background: rgba(189,152,89,0.13); color: var(--ink);
+  border: 1px solid rgba(189,152,89,0.35); gap: 6px; flex-shrink: 0;
+}
+.ps-btn-export:hover { background: rgba(189,152,89,0.24); color: var(--ink); border-color: rgba(189,152,89,0.55); }
+.ps-btn-reset {
+  background: var(--ink-10); color: var(--ink);
+  border: 1px solid var(--ink-10); gap: 6px; flex-shrink: 0;
+}
+.ps-btn-reset:hover { background: rgba(20,17,11,.14); color: var(--ink); border-color: var(--ink-30); }
+
+/* ── PDF PRINT LAYOUT ── */
+.pdf-export { display: none; }
+@media print {
+  *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .ps-nav, .page, .footer, #tweaks-root { display: none !important; }
+  .pdf-export { display: block !important; font-family: 'Inter', sans-serif; color: #14110b; }
+  @page { margin: 0; size: A4 portrait; }
+  .pdf-export { padding: 1.1cm 1.3cm !important; background: #faf8f3 !important; }
+}
+/* PDF header */
+.pdf-pg-header {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 2px solid #bd9859; padding-bottom: 12px; margin-bottom: 16px;
+}
+.pdf-logo   { height: 24px; }
+.pdf-pg-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: #14110b; text-align: right; letter-spacing: -0.01em; }
+.pdf-pg-date  { font-size: 9.5px; color: rgba(20,17,11,0.42); margin-top: 2px; text-align: right; }
+/* Borrower cards */
+.pdf-borrowers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.pdf-borrowers.single { grid-template-columns: 1fr; }
+.pdf-borrower-card {
+  background: #faf8f3; border: 1px solid rgba(20,17,11,0.1);
+  border-radius: 9px; padding: 10px 14px;
+}
+.pdf-borrower-label {
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #8f7340; margin-bottom: 7px;
+}
+.pdf-brow {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: 10px; color: rgba(20,17,11,0.5);
+  padding: 3px 0; border-bottom: 1px solid rgba(20,17,11,0.06);
+}
+.pdf-brow:last-child { border-bottom: none; }
+.pdf-brow strong { font-size: 10.5px; font-weight: 600; color: #14110b; }
+.pdf-debt-label { font-size: 7.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(20,17,11,0.4); padding-top: 7px; padding-bottom: 1px; }
+/* Assessable income bar */
+.pdf-assessable-bar {
+  background: #faf8f3; border: 1.5px solid #bd9859; border-radius: 9px; padding: 10px 18px;
+  display: flex; align-items: center; margin-bottom: 6px;
+}
+.pdf-assessable-left .pdf-assessable-label { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(20,17,11,0.45); margin-right: 16px; white-space: nowrap; }
+.pdf-assessable-amt   { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #bd9859; margin-top: 1px; }
+.pdf-assumptions      { font-size: 8px; color: rgba(20,17,11,0.4); margin-bottom: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Property cards */
+.pdf-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; margin-bottom: 18px; }
+.pdf-card { border: 1px solid rgba(20,17,11,0.12); border-radius: 9px; overflow: hidden; }
+.pdf-card-head {
+  background: #bd9859; padding: 7px 11px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pdf-card-name  { font-size: 10.5px; font-weight: 700; color: #fff; }
+.pdf-card-badge { font-size: 7.5px; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 99px; color: #fff; }
+.pdf-card-body  { padding: 8px 11px; }
+.pdf-card-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 9.5px; color: rgba(20,17,11,0.5);
+  padding: 3px 0; border-bottom: 1px solid rgba(20,17,11,0.06);
+}
+.pdf-card-row:last-child { border-bottom: none; }
+.pdf-card-row strong { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: #14110b; font-size: 11px; }
+.pdf-card-row.monthly strong { color: #8f7340; }
+/* Agent footer */
+.pdf-agent-footer {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  border-top: 1.5px solid #bd9859; padding-top: 14px; margin-top: 4px; text-align: center;
+}
+.pdf-agent-photo { width: 56px; height: 56px; object-fit: cover; object-position: top; border-radius: 50%; border: 2px solid #bd9859; }
+.pdf-agent-info  { text-align: center; }
+.pdf-agent-name  { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: #14110b; }
+.pdf-agent-creds { font-size: 9.5px; color: rgba(20,17,11,0.5); margin-top: 2px; }
+.pdf-agent-phone { font-size: 12px; font-weight: 700; color: #bd9859; margin-top: 4px; }
+.pdf-qr-img { width: 62px; height: 62px; border: 1px solid rgba(20,17,11,0.1); border-radius: 6px; display: block; }
+.pdf-date-footer { font-size: 8px; color: rgba(20,17,11,0.3); text-align: center; margin-top: 10px; }
+.pdf-disclaimer {
+  font-size: 8px; color: rgba(20,17,11,0.32); line-height: 1.6; margin-top: 9px;
+  border-top: 1px solid rgba(20,17,11,0.07); padding-top: 7px;
+}
+
+<template id="__bundler_thumbnail" data-bg-color="#14110b">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#14110b"/>
+    <g transform="translate(200,220)">
+      <!-- Declining bar chart -->
+      <rect x="0"   y="0"   width="100" height="300" rx="10" fill="#bd9859" opacity="0.9"/>
+      <rect x="140" y="80"  width="100" height="220" rx="10" fill="#bd9859" opacity="0.7"/>
+      <rect x="280" y="160" width="100" height="140" rx="10" fill="#bd9859" opacity="0.5"/>
+      <rect x="420" y="230" width="100" height="70"  rx="10" fill="#bd9859" opacity="0.35"/>
+      <!-- Trend line -->
+      <path d="M50 0 L190 80 L330 160 L470 230" fill="none" stroke="#e6b86d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Dot at first bar top -->
+      <circle cx="50" cy="0" r="12" fill="#e6b86d"/>
+    </g>
+    <text x="600" y="660" text-anchor="middle" font-family="Georgia, serif" font-size="46" fill="#faf8f3">Affordability Calculator</text>
+    <text x="600" y="710" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#bd9859">TDSR · MSR · Loan Tenure</text>
+  </svg>
+</template>
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="ps-nav">
+  <div class="ps-nav-inner">
+    <a class="ps-brand" href="index.html" aria-label="Property Scout — home">
+      <img src="assets/property-scout-logo.png" alt="Property Scout" />
+      <span class="ps-brand-sub">Shi Yao · PropNex</span>
+    </a>
+    <div class="ps-nav-links">
+      <a href="index.html#about">About</a>
+      <a href="index.html#services">Services</a>
+      <div class="ps-dd" tabindex="0">
+        <span class="ps-dd-trigger active">Calculators
+          <svg class="ps-dd-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+        <div class="ps-dd-menu">
+          <a class="ps-dd-item" href="calculators.html"><span>All calculators</span></a>
+          <div class="ps-dd-sep"></div>
+          <a class="ps-dd-item" href="New Launch Calculator.html"><span>New Launch Calculator</span></a>
+          <a class="ps-dd-item" href="Stamp Duty Calculator.html"><span>Stamp Duty Calculator</span></a>
+          <a class="ps-dd-item active" href="Affordability Calculator.html"><span>Affordability Calculator</span></a>
+        </div>
+      </div>
+      <a href="index.html#testimonial">Testimonial</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+    <div class="ps-nav-cta">
+      <a class="ps-btn ps-btn-wa" href="https://wa.me/6588877800?text=Hi%20Shi%20Yao%2C%20I'd%20like%20to%20find%20out%20more%20about%20my%20property%20options." target="_blank" rel="noreferrer">WhatsApp</a>
+      <a class="ps-btn ps-btn-primary" href="index.html#contact">Book consultation</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-title-row">
+      <h1 class="hero-title">Affordability <em>Calculator</em></h1>
+    <div class="hero-btn-group">
+      <button class="ps-btn ps-btn-reset" onclick="resetAll()" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Reset
+      </button>
+      <button class="ps-btn ps-btn-export" onclick="exportPDF()" type="button">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
+        Export PDF
+      </button>
+    </div>
+    </div>
+    <p class="hero-sub">Your maximum loan and property budget — based on income, age and interest rate. Works for salaried and self-employed borrowers.</p>
+  </div>
+
+  <div class="calc-grid">
+
+    <!-- ── INPUTS ── -->
+    <div class="calc-inputs">
+
+      <div class="field">
+        <label>Employment type</label>
+        <div class="seg-wrap" id="employ-seg">
+          <button class="seg-btn active" data-val="salaried">Salaried</button>
+          <button class="seg-btn seg-btn-two-line" data-val="selfemployed">Self-employed<span class="seg-btn-note">30% haircut</span></button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Gross monthly income (SGD)</label>
+        <div class="price-wrap">
+          <span class="price-prefix">S$</span>
+          <input class="price-input" type="text" id="income-display" value="0" inputmode="numeric" autocomplete="off" />
+          <input type="hidden" id="income-val" value="0" />
+        </div>
+      </div>
+      <div class="slider-field">
+        <div class="slider-track-wrap">
+          <div class="slider-track-bg"></div>
+          <div class="slider-track-fill" id="income-fill"></div>
+          <input type="range" id="income-slider" min="2000" max="50000" step="500" value="2000" />
+        </div>
+        <div class="slider-labels"><span>S$2K / mo</span><span>S$50K / mo</span></div>
+      </div>
+      <div id="haircut-line" class="haircut-line" style="display:none;">After 30% haircut: <strong id="haircut-amt">S$—</strong> / mo effective</div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Additional annual income <span style="font-size:10px;opacity:.55;text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+        <div class="price-wrap">
+          <span class="price-prefix">S$</span>
+          <input class="price-input" type="text" id="add-income-display" placeholder="0" inputmode="numeric" autocomplete="off" />
+          <input type="hidden" id="add-income-val" value="0" />
+        </div>
+      </div>
+      <div class="add-income-hint" id="add-income-hint" style="display:none;"></div>
+
+      <div class="field" style="margin-top:14px; margin-bottom:2px;">
+        <label>Monthly debt obligations <span style="font-size:10px;opacity:.55;text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+      </div>
+      <div class="debt-grid">
+        <div class="debt-item">
+          <span class="debt-label">Car loan</span>
+          <div class="price-wrap price-wrap-sm">
+            <span class="price-prefix">S$</span>
+            <input class="price-input" type="text" id="debt-car" placeholder="0" inputmode="numeric" autocomplete="off" />
+          </div>
+        </div>
+        <div class="debt-item">
+          <span class="debt-label">Credit card</span>
+          <div class="price-wrap price-wrap-sm">
+            <span class="price-prefix">S$</span>
+            <input class="price-input" type="text" id="debt-cc" placeholder="0" inputmode="numeric" autocomplete="off" />
+          </div>
+        </div>
+        <div class="debt-item">
+          <span class="debt-label">Other loans</span>
+          <div class="price-wrap price-wrap-sm">
+            <span class="price-prefix">S$</span>
+            <input class="price-input" type="text" id="debt-other" placeholder="0" inputmode="numeric" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:6px; margin-top:16px;">
+        <label>Current age</label>
+        <div class="slider-val" id="age-display">35 years old</div>
+      </div>
+      <div class="slider-field">
+        <div class="slider-track-wrap">
+          <div class="slider-track-bg"></div>
+          <div class="slider-track-fill" id="age-fill"></div>
+          <input type="range" id="age-slider" min="21" max="64" step="1" value="35" />
+        </div>
+        <div class="slider-labels"><span>21</span><span id="age-max-label">64</span></div>
+      </div>
+
+      <button class="add-profile-btn" id="add-coborrower-btn" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add co-borrower
+      </button>
+
+      <div class="coborrower-card" id="coborrower-card">
+        <div class="coborrower-head">
+          <span class="coborrower-label">Co-borrower</span>
+          <button class="coborrower-remove" id="coborrower-remove" type="button">Remove</button>
+        </div>
+        <div class="field">
+          <label>Employment type</label>
+          <div class="seg-wrap" id="co2-employ-seg">
+            <button class="seg-btn active" data-val="salaried">Salaried</button>
+            <button class="seg-btn seg-btn-two-line" data-val="selfemployed">Self-employed<span class="seg-btn-note">30% haircut</span></button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Gross monthly income (SGD)</label>
+          <div class="price-wrap">
+            <span class="price-prefix">S$</span>
+            <input class="price-input" type="text" id="co2-income-display" value="0" inputmode="numeric" autocomplete="off" />
+            <input type="hidden" id="co2-income-val" value="0" />
+          </div>
+        </div>
+        <div class="slider-field">
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="co2-income-fill"></div>
+            <input type="range" id="co2-income-slider" min="2000" max="50000" step="500" value="2000" />
+          </div>
+          <div class="slider-labels"><span>S$2K / mo</span><span>S$50K / mo</span></div>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label>Additional annual income <span style="font-size:10px;opacity:.55;text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+          <div class="price-wrap">
+            <span class="price-prefix">S$</span>
+            <input class="price-input" type="text" id="co2-add-income-display" placeholder="0" inputmode="numeric" autocomplete="off" />
+            <input type="hidden" id="co2-add-income-val" value="0" />
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:6px; margin-top:12px;">
+          <label>Current age</label>
+          <div class="slider-val" id="co2-age-display">35 years old</div>
+        </div>
+        <div class="slider-field">
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="co2-age-fill"></div>
+            <input type="range" id="co2-age-slider" min="21" max="64" step="1" value="35" />
+          </div>
+          <div class="slider-labels"><span>21</span><span>64</span></div>
+        </div>
+
+        <div class="field" style="margin-top:14px; margin-bottom:2px;">
+          <label>Monthly debt obligations <span style="font-size:10px;opacity:.55;text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+        </div>
+        <div class="debt-grid">
+          <div class="debt-item">
+            <span class="debt-label">Car loan</span>
+            <div class="price-wrap price-wrap-sm">
+              <span class="price-prefix">S$</span>
+              <input class="price-input" type="text" id="co2-debt-car" placeholder="0" inputmode="numeric" autocomplete="off" />
+            </div>
+          </div>
+          <div class="debt-item">
+            <span class="debt-label">Credit card</span>
+            <div class="price-wrap price-wrap-sm">
+              <span class="price-prefix">S$</span>
+              <input class="price-input" type="text" id="co2-debt-cc" placeholder="0" inputmode="numeric" autocomplete="off" />
+            </div>
+          </div>
+          <div class="debt-item">
+            <span class="debt-label">Other loans</span>
+            <div class="price-wrap price-wrap-sm">
+              <span class="price-prefix">S$</span>
+              <input class="price-input" type="text" id="co2-debt-other" placeholder="0" inputmode="numeric" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputs-divider"></div>
+
+      <div class="rules-card">
+        <div class="rules-card-title">Rules applied</div>
+        <div id="rule-main">TDSR 55% — max S$4,400 / mo towards all debts</div>
+        <div id="rule-tenure" style="margin-top:3px;">Loan repaid by age 65 · max 30 years tenure</div>
+        <div id="rule-haircut" style="margin-top:3px;display:none;"></div>
+        <div id="rule-debts"  style="margin-top:3px;display:none;"></div>
+      </div>
+
+    </div>
+
+    <!-- ── RESULTS ── -->
+    <div class="calc-results">
+
+      <div class="assessable-row">
+        <span class="assessable-label">Total assessable income</span>
+        <span class="assessable-amt" id="assessable-income">S$—</span>
+      </div>
+
+      <div class="section-label">Borrowing power by property type</div>
+
+      <div class="prop-card prop-card-private">
+        <div class="prop-card-head"><div class="prop-card-title">Private Property</div><span class="prop-card-badge">TDSR 55%</span></div>
+        <div class="prop-stats">
+          <div class="prop-stat"><div class="prop-stat-label">Max eligible loan</div><div class="prop-stat-val is-main" id="private-loan">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Max property price</div><div class="prop-stat-val is-main" id="private-price">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Loan tenure</div><div class="prop-stat-val" id="private-tenure">—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Down payment (25%)</div><div class="prop-stat-val" id="private-down">S$—</div></div>
+        </div>
+        <div class="prop-card-rate">
+          <div class="prop-rate-row">
+            <span class="prop-rate-label">Interest rate &nbsp;<strong id="private-rate-val">1.50%</strong></span>
+            <div class="prop-rate-monthly">
+              <div class="prop-rate-monthly-label">Monthly repayment</div>
+              <div class="prop-rate-monthly-amt" id="private-monthly">S$—</div>
+            </div>
+          </div>
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="private-rate-fill"></div>
+            <input type="range" id="private-rate-slider" min="0.5" max="5" step="0.05" value="1.5" />
+          </div>
+          <div class="slider-labels"><span>0.5%</span><span>5%</span></div>
+        </div>
+      </div>
+
+      <div class="prop-card prop-card-ec">
+        <div class="prop-card-head"><div class="prop-card-title">Executive Condo (EC)</div><span class="prop-card-badge">MSR 30%</span></div>
+        <div class="prop-stats">
+          <div class="prop-stat"><div class="prop-stat-label">Max eligible loan</div><div class="prop-stat-val is-main" id="ec-loan">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Max property price</div><div class="prop-stat-val is-main" id="ec-price">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Loan tenure</div><div class="prop-stat-val" id="ec-tenure">—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Down payment (25%)</div><div class="prop-stat-val" id="ec-down">S$—</div></div>
+        </div>
+        <div class="prop-card-rate">
+          <div class="prop-rate-row">
+            <span class="prop-rate-label">Interest rate &nbsp;<strong id="ec-rate-val">1.50%</strong></span>
+            <div class="prop-rate-monthly">
+              <div class="prop-rate-monthly-label">Monthly repayment</div>
+              <div class="prop-rate-monthly-amt" id="ec-monthly">S$—</div>
+            </div>
+          </div>
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="ec-rate-fill"></div>
+            <input type="range" id="ec-rate-slider" min="0.5" max="5" step="0.05" value="1.5" />
+          </div>
+          <div class="slider-labels"><span>0.5%</span><span>5%</span></div>
+        </div>
+      </div>
+
+      <div class="prop-card prop-card-hdb">
+        <div class="prop-card-head"><div class="prop-card-title">HDB</div><span class="prop-card-badge">MSR 30%</span></div>
+        <div class="prop-stats">
+          <div class="prop-stat"><div class="prop-stat-label">Max eligible loan</div><div class="prop-stat-val is-main" id="hdb-loan">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Max property price</div><div class="prop-stat-val is-main" id="hdb-price">S$—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Loan tenure</div><div class="prop-stat-val" id="hdb-tenure">—</div></div>
+          <div class="prop-stat"><div class="prop-stat-label">Down payment (25%)</div><div class="prop-stat-val" id="hdb-down">S$—</div></div>
+        </div>
+        <div class="prop-card-rate">
+          <div class="prop-rate-row">
+            <span class="prop-rate-label">Interest rate &nbsp;<strong id="hdb-rate-val">1.50%</strong></span>
+            <div class="prop-rate-monthly">
+              <div class="prop-rate-monthly-label">Monthly repayment</div>
+              <div class="prop-rate-monthly-amt" id="hdb-monthly">S$—</div>
+            </div>
+          </div>
+          <div class="slider-track-wrap">
+            <div class="slider-track-bg"></div>
+            <div class="slider-track-fill" id="hdb-rate-fill"></div>
+            <input type="range" id="hdb-rate-slider" min="0.5" max="5" step="0.05" value="1.5" />
+          </div>
+          <div class="slider-labels"><span>0.5%</span><span>5%</span></div>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand">Property Scout</div>
+    <p class="footer-disc">CEA Registered Salesperson (R057878B) under PropNex Realty Pte Ltd. All figures are indicative estimates only and do not constitute financial or mortgage advice. Consult a licensed mortgage broker for advice tailored to your situation.</p>
+  </div>
+  <a class="back" href="index.html">&#8592;&nbsp; Back to home</a>
+</footer>
+
+<script>
+// ── State ──
+var retAge       = 65;
+var income       = 0;
+var currentAge   = 35;
+var annualRate   = 0.04;  // stress test rate — fixed
+var additionalAnnual = 0;
+var selfEmployed    = false;
+var co2Income           = 0;
+var co2SelfEmployed     = false;
+var co2AdditionalAnnual = 0;
+var co2Age              = 35;
+var hasCoBorrower       = false;
+var ratePrivate         = 0.015;
+var rateEc              = 0.015;
+var rateHdb             = 0.015;
+var debtCar             = 0;
+var debtCC              = 0;
+var debtOther           = 0;
+var co2DebtCar          = 0;
+var co2DebtCC           = 0;
+var co2DebtOther        = 0;
+
+// ── Monthly repayment at actual (non-stress-test) rate ──
+function calcMonthlyPayment(loan, annualRate, tenureYears) {
+  if (loan <= 0 || tenureYears <= 0) return 0;
+  var r = annualRate / 12;
+  var n = tenureYears * 12;
+  if (r < 0.00001) return loan / n;
+  return loan * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+}
+
+// ── Core: max loan via PV of annuity (stress-test rate, TDSR-aware) ──
+function calcMaxLoan(inc, age, rate, ratio, maxTen, debts) {
+  var tenure    = Math.min(retAge - age, maxTen);
+  if (tenure <= 0) return 0;
+  var tdsrAvail = inc * 0.55 - (debts || 0);
+  var maxMthly  = Math.min(inc * ratio, tdsrAvail);
+  if (maxMthly <= 0) return 0;
+  var n = tenure * 12;
+  if (rate < 0.00001) return maxMthly * n;
+  var r = rate / 12;
+  return maxMthly * (1 - Math.pow(1 + r, -n)) / r;
+}
+
+// ── Formatters ──
+function fmtSGD(n) {
+  return 'S$' + Math.round(n).toLocaleString('en-SG');
+}
+
+
+// ── Update fill width for a range input ──
+function syncFill(fillId, slider) {
+  var mn  = parseFloat(slider.min);
+  var mx  = parseFloat(slider.max);
+  var val = parseFloat(slider.value);
+  document.getElementById(fillId).style.width = ((val - mn) / (mx - mn) * 100).toFixed(1) + '%';
+}
+
+// ── Master update ──
+function updateAll() {
+  var additionalMthly     = Math.round(additionalAnnual / 12);
+  var additionalEffective  = Math.round(additionalMthly * 0.70);
+  var mainSalary           = selfEmployed ? Math.round(income * 0.70) : income;
+  var effectiveInc1        = mainSalary + additionalEffective;
+  var co2AddMthly          = Math.round(co2AdditionalAnnual / 12);
+  var co2AddEffective      = Math.round(co2AddMthly * 0.70);
+  var co2MainSalary        = co2SelfEmployed ? Math.round(co2Income * 0.70) : co2Income;
+  var co2Effective         = hasCoBorrower ? (co2MainSalary + co2AddEffective) : 0;
+  var effectiveInc  = effectiveInc1 + co2Effective;
+  var totalDebts    = debtCar + debtCC + debtOther + (hasCoBorrower ? co2DebtCar + co2DebtCC + co2DebtOther : 0);
+
+  // IWAA — income-weighted average age
+  var iwaaAge = currentAge;
+  if (hasCoBorrower && effectiveInc > 0) {
+    iwaaAge = ((effectiveInc1 * currentAge) + (co2Effective * co2Age)) / effectiveInc;
+  }
+  var effectiveAge = Math.ceil(iwaaAge);
+
+  // Additional income hint
+  var addHint = document.getElementById('add-income-hint');
+  if (additionalEffective > 0) {
+    addHint.textContent = '+ ' + fmtSGD(additionalEffective) + ' / mo effective (30% haircut on ' + fmtSGD(additionalMthly) + ' / mo)';
+    addHint.style.display = '';
+  } else {
+    addHint.style.display = 'none';
+  }
+
+  syncFill('age-fill', document.getElementById('age-slider'));
+  document.getElementById('assessable-income').textContent = fmtSGD(effectiveInc) + ' / mo';
+
+  var CONFIGS = [
+    { key: 'private', ratio: 0.55, maxTen: 30, rate: ratePrivate },
+    { key: 'ec',      ratio: 0.30, maxTen: 30, rate: rateEc      },
+    { key: 'hdb',     ratio: 0.30, maxTen: 25, rate: rateHdb     }
+  ];
+  CONFIGS.forEach(function(cfg) {
+    var tenure  = Math.min(retAge - effectiveAge, cfg.maxTen);
+    var loan    = calcMaxLoan(effectiveInc, effectiveAge, annualRate, cfg.ratio, cfg.maxTen, totalDebts);
+    var price   = loan > 0 ? loan / 0.75 : 0;
+    var down    = price - loan;
+    var monthly = calcMonthlyPayment(loan, cfg.rate, tenure);
+    document.getElementById(cfg.key + '-loan').textContent    = loan    > 0 ? fmtSGD(loan)    : 'S$0';
+    document.getElementById(cfg.key + '-price').textContent   = price   > 0 ? fmtSGD(price)   : 'S$0';
+    document.getElementById(cfg.key + '-down').textContent    = down    > 0 ? fmtSGD(down)    : 'S$0';
+    document.getElementById(cfg.key + '-tenure').textContent  = tenure  > 0 ? tenure + ' yrs'  : '—';
+    document.getElementById(cfg.key + '-monthly').textContent = monthly > 0 ? fmtSGD(monthly) + ' / mo' : '—';
+  });
+
+  document.getElementById('rule-main').textContent = hasCoBorrower && co2Effective > 0
+    ? 'Combined income: ' + fmtSGD(effectiveInc) + ' / mo · Stress test: 4% p.a. · LTV: 75%'
+    : 'Stress test: 4% p.a. · LTV: 75% · Age cap: 65';
+  document.getElementById('rule-tenure').textContent = hasCoBorrower && co2Effective > 0
+    ? 'IWAA: ' + effectiveAge + ' · Private/EC: max 30 yrs · HDB: max 25 yrs'
+    : 'Private/EC: max 30 yrs · HDB: max 25 yrs';
+  var hcEl   = document.getElementById('rule-haircut');
+  var hcLine = document.getElementById('haircut-line');
+  if (selfEmployed) {
+    hcEl.textContent = 'Salary haircut: 30% applied — effective salary ' + fmtSGD(mainSalary) + ' / mo';
+    hcEl.style.display = '';
+    document.getElementById('haircut-amt').textContent = fmtSGD(mainSalary);
+    hcLine.style.display = '';
+  } else {
+    hcEl.style.display = 'none';
+    hcLine.style.display = 'none';
+  }
+  var ruleDebts = document.getElementById('rule-debts');
+  if (totalDebts > 0) {
+    var tdsrLeft = Math.max(0, effectiveInc * 0.55 - totalDebts);
+    ruleDebts.textContent = 'Monthly obligations: ' + fmtSGD(totalDebts) + ' · TDSR left for mortgage: ' + fmtSGD(tdsrLeft) + ' / mo';
+    ruleDebts.style.display = '';
+  } else {
+    ruleDebts.style.display = 'none';
+  }
+}
+
+// ── Wire up inputs ──
+
+// Income text input
+document.getElementById('income-display').addEventListener('input', function() {
+  var raw = this.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw, 10) || 0;
+  this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+  document.getElementById('income-val').value = num;
+  income = num;
+  var sl = document.getElementById('income-slider');
+  sl.value = Math.min(Math.max(num, 2000), 50000);
+  syncFill('income-fill', sl);
+  updateAll();
+});
+
+// Income slider
+document.getElementById('income-slider').addEventListener('input', function() {
+  var val = parseInt(this.value, 10);
+  income = val;
+  document.getElementById('income-val').value = val;
+  document.getElementById('income-display').value = val.toLocaleString('en-SG');
+  syncFill('income-fill', this);
+  updateAll();
+});
+
+// Additional income
+document.getElementById('add-income-display').addEventListener('input', function() {
+  var raw = this.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw, 10) || 0;
+  this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+  document.getElementById('add-income-val').value = num;
+  additionalAnnual = num;
+  updateAll();
+});
+
+// Age slider
+document.getElementById('age-slider').addEventListener('input', function() {
+  currentAge = parseInt(this.value, 10);
+  document.getElementById('age-display').textContent = currentAge + ' years old';
+  syncFill('age-fill', this);
+  updateAll();
+});
+
+// Rate slider removed — rate fixed at 4% stress test
+
+// Property type — removed (all 3 shown simultaneously)
+
+// Employment type seg
+document.getElementById('employ-seg').addEventListener('click', function(e) {
+  var btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  selfEmployed = btn.dataset.val === 'selfemployed';
+  this.querySelectorAll('.seg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  updateAll();
+});
+
+// Retirement age fixed at 65
+
+// Debt inputs
+function wireDebtInput(id, setter) {
+  document.getElementById(id).addEventListener('input', function() {
+    var raw = this.value.replace(/[^0-9]/g, '');
+    var num = parseInt(raw, 10) || 0;
+    this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+    setter(num); updateAll();
+  });
+}
+wireDebtInput('debt-car',       function(v) { debtCar = v; });
+wireDebtInput('debt-cc',        function(v) { debtCC = v; });
+wireDebtInput('debt-other',     function(v) { debtOther = v; });
+wireDebtInput('co2-debt-car',   function(v) { co2DebtCar = v; });
+wireDebtInput('co2-debt-cc',    function(v) { co2DebtCC = v; });
+wireDebtInput('co2-debt-other', function(v) { co2DebtOther = v; });
+
+// Rate sliders per property type
+['private', 'ec', 'hdb'].forEach(function(key) {
+  document.getElementById(key + '-rate-slider').addEventListener('input', function() {
+    var pct = parseFloat(this.value);
+    if (key === 'private') ratePrivate = pct / 100;
+    else if (key === 'ec') rateEc = pct / 100;
+    else rateHdb = pct / 100;
+    document.getElementById(key + '-rate-val').textContent = pct.toFixed(2) + '%';
+    syncFill(key + '-rate-fill', this);
+    updateAll();
+  });
+});
+
+// ── Co-borrower controls ──
+document.getElementById('add-coborrower-btn').addEventListener('click', function() {
+  hasCoBorrower = true;
+  document.getElementById('coborrower-card').classList.add('visible');
+  this.style.display = 'none';
+  syncFill('co2-income-fill', document.getElementById('co2-income-slider'));
+  syncFill('co2-age-fill', document.getElementById('co2-age-slider'));
+  updateAll();
+});
+document.getElementById('coborrower-remove').addEventListener('click', function() {
+  hasCoBorrower = false;
+  co2Income = 5000;
+  co2SelfEmployed = false;
+  co2AdditionalAnnual = 0;
+  co2Age = 35;
+  co2DebtCar = 0; co2DebtCC = 0; co2DebtOther = 0;
+  document.getElementById('co2-debt-car').value   = '';
+  document.getElementById('co2-debt-cc').value    = '';
+  document.getElementById('co2-debt-other').value = '';
+  document.getElementById('coborrower-card').classList.remove('visible');
+  document.getElementById('add-coborrower-btn').style.display = '';
+  document.getElementById('co2-income-display').value = '';
+  document.getElementById('co2-income-slider').value = 2000;
+  syncFill('co2-income-fill', document.getElementById('co2-income-slider'));
+  document.getElementById('co2-add-income-display').value = '';
+  document.getElementById('co2-add-income-val').value = 0;
+  document.getElementById('co2-age-display').textContent = '35 years old';
+  document.getElementById('co2-age-slider').value = 35;
+  syncFill('co2-age-fill', document.getElementById('co2-age-slider'));
+  document.getElementById('co2-employ-seg').querySelectorAll('.seg-btn').forEach(function(b, i) {
+    b.classList.toggle('active', i === 0);
+  });
+  updateAll();
+});
+document.getElementById('co2-employ-seg').addEventListener('click', function(e) {
+  var btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+  co2SelfEmployed = btn.dataset.val === 'selfemployed';
+  this.querySelectorAll('.seg-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  updateAll();
+});
+document.getElementById('co2-income-display').addEventListener('input', function() {
+  var raw = this.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw, 10) || 0;
+  this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+  document.getElementById('co2-income-val').value = num;
+  co2Income = num;
+  var sl = document.getElementById('co2-income-slider');
+  sl.value = Math.min(Math.max(num, 2000), 50000);
+  syncFill('co2-income-fill', sl);
+  updateAll();
+});
+document.getElementById('co2-income-slider').addEventListener('input', function() {
+  var val = parseInt(this.value, 10);
+  co2Income = val;
+  document.getElementById('co2-income-val').value = val;
+  document.getElementById('co2-income-display').value = val.toLocaleString('en-SG');
+  syncFill('co2-income-fill', this);
+  updateAll();
+});
+document.getElementById('co2-add-income-display').addEventListener('input', function() {
+  var raw = this.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw, 10) || 0;
+  this.value = num > 0 ? num.toLocaleString('en-SG') : '';
+  document.getElementById('co2-add-income-val').value = num;
+  co2AdditionalAnnual = num;
+  updateAll();
+});
+document.getElementById('co2-age-slider').addEventListener('input', function() {
+  co2Age = parseInt(this.value, 10);
+  document.getElementById('co2-age-display').textContent = co2Age + ' years old';
+  syncFill('co2-age-fill', this);
+  updateAll();
+});
+
+// ── Init ──
+syncFill('income-fill',       document.getElementById('income-slider'));
+syncFill('age-fill',          document.getElementById('age-slider'));
+syncFill('private-rate-fill', document.getElementById('private-rate-slider'));
+syncFill('ec-rate-fill',      document.getElementById('ec-rate-slider'));
+syncFill('hdb-rate-fill',     document.getElementById('hdb-rate-slider'));
+updateAll();
+
+function exportPDF() {
+  // Date
+  var today = new Date();
+  document.getElementById('pdf-date').textContent = 'Generated ' + today.toLocaleDateString('en-SG', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Borrower 1
+  document.getElementById('pdf-b1-employ').textContent  = selfEmployed ? 'Self-employed (30% haircut)' : 'Salaried';
+  document.getElementById('pdf-b1-income').textContent  = fmtSGD(income) + ' / mo';
+  document.getElementById('pdf-b1-age').textContent     = currentAge + ' years old';
+  if (additionalAnnual > 0) {
+    document.getElementById('pdf-b1-add').textContent   = fmtSGD(additionalAnnual) + ' / yr';
+    document.getElementById('pdf-b1-add-row').style.display = '';
+  } else {
+    document.getElementById('pdf-b1-add-row').style.display = 'none';
+  }
+  function setPDFDebt(rowId, elId, val) {
+    var row = document.getElementById(rowId); if (row) row.style.display = val > 0 ? '' : 'none';
+    if (val > 0) { var el = document.getElementById(elId); if (el) el.textContent = fmtSGD(val) + ' / mo'; }
+  }
+  setPDFDebt('pdf-b1-car-row',   'pdf-b1-car',   debtCar);
+  setPDFDebt('pdf-b1-cc-row',    'pdf-b1-cc',    debtCC);
+  setPDFDebt('pdf-b1-other-row', 'pdf-b1-other', debtOther);
+  var b1DH = document.getElementById('pdf-b1-debt-header');
+  if (b1DH) b1DH.style.display = (debtCar + debtCC + debtOther > 0) ? '' : 'none';
+
+  // Co-borrower
+  var grid = document.getElementById('pdf-borrowers-grid');
+  var co2Card = document.getElementById('pdf-co2-card');
+  if (hasCoBorrower) {
+    co2Card.style.display = '';
+    grid.classList.remove('single');
+    document.getElementById('pdf-b2-employ').textContent  = co2SelfEmployed ? 'Self-employed (30% haircut)' : 'Salaried';
+    document.getElementById('pdf-b2-income').textContent  = fmtSGD(co2Income) + ' / mo';
+    document.getElementById('pdf-b2-age').textContent     = co2Age + ' years old';
+    if (co2AdditionalAnnual > 0) {
+      document.getElementById('pdf-b2-add').textContent   = fmtSGD(co2AdditionalAnnual) + ' / yr';
+      document.getElementById('pdf-b2-add-row').style.display = '';
+    } else {
+      document.getElementById('pdf-b2-add-row').style.display = 'none';
+    }
+    setPDFDebt('pdf-b2-car-row',   'pdf-b2-car',   co2DebtCar);
+    setPDFDebt('pdf-b2-cc-row',    'pdf-b2-cc',    co2DebtCC);
+    setPDFDebt('pdf-b2-other-row', 'pdf-b2-other', co2DebtOther);
+    var b2DH = document.getElementById('pdf-b2-debt-header');
+    if (b2DH) b2DH.style.display = (co2DebtCar + co2DebtCC + co2DebtOther > 0) ? '' : 'none';
+  } else {
+    co2Card.style.display = 'none';
+    grid.classList.add('single');
+  }
+
+  // Assessable income
+  document.getElementById('pdf-assessable').textContent = document.getElementById('assessable-income').textContent;
+  document.getElementById('pdf-assumptions').textContent =
+    'Stress test ' + (annualRate * 100).toFixed(2) + '% p.a. · LTV 75% · Retirement age ' + retAge +
+    ' · ' + document.getElementById('rule-tenure').textContent;
+
+  // Property cards
+  var map = { p: 'private', e: 'ec', h: 'hdb' };
+  Object.keys(map).forEach(function(k) {
+    var key = map[k];
+    document.getElementById('pdf-' + k + '-loan').textContent    = document.getElementById(key + '-loan').textContent;
+    document.getElementById('pdf-' + k + '-price').textContent   = document.getElementById(key + '-price').textContent;
+    document.getElementById('pdf-' + k + '-down').textContent    = document.getElementById(key + '-down').textContent;
+    document.getElementById('pdf-' + k + '-tenure').textContent  = document.getElementById(key + '-tenure').textContent;
+    document.getElementById('pdf-' + k + '-monthly').textContent = document.getElementById(key + '-monthly').textContent;
+    document.getElementById('pdf-' + k + '-rate').textContent    = '@ ' + document.getElementById(key + '-rate-val').textContent;
+  });
+
+  // QR code then print
+  var qrImg = document.getElementById('pdf-qr-img');
+  var origTitle = document.title;
+  var _pdfTitle = 'Property Scout - Affordability Summary';
+  function _setAllTitles(t) {
+    document.title = t;
+    try { window.parent.document.title = t; } catch(e) {}
+    try { window.top.document.title = t; } catch(e) {}
+  }
+  _setAllTitles(_pdfTitle);
+  function doPrint() { setTimeout(function() {
+    _setAllTitles(_pdfTitle);
+    window.print();
+    setTimeout(function() { _setAllTitles(origTitle); }, 600);
+  }, 600); }
+  if (qrImg.complete && qrImg.naturalWidth > 0) {
+    doPrint();
+  } else {
+    qrImg.onload  = function() { doPrint(); };
+    qrImg.onerror = function() { doPrint(); };
+    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fwa.me%2F6588877800&color=14110b&bgcolor=faf8f3';
+  }
+}
+
+// Pre-load QR image so it's cached by the time user prints
+(function() {
+  var pre = document.getElementById('pdf-qr-img');
+  if (pre) pre.src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fwa.me%2F6588877800&color=14110b&bgcolor=faf8f3';
+})();
+
+function resetAll() {
+  income = 0; selfEmployed = false; additionalAnnual = 0;
+  currentAge = 35; debtCar = 0; debtCC = 0; debtOther = 0;
+  document.getElementById('income-display').value = '0';
+  document.getElementById('income-val').value = 0;
+  var incSl = document.getElementById('income-slider'); incSl.value = 2000; syncFill('income-fill', incSl);
+  document.getElementById('add-income-display').value = '';
+  document.getElementById('add-income-val').value = 0;
+  var hint = document.getElementById('add-income-hint'); if (hint) hint.style.display = 'none';
+  var hl = document.getElementById('haircut-line'); if (hl) hl.style.display = 'none';
+  var ageSl = document.getElementById('age-slider'); ageSl.value = 35; syncFill('age-fill', ageSl);
+  document.getElementById('age-display').textContent = '35 years old';
+  document.getElementById('debt-car').value = '';
+  document.getElementById('debt-cc').value = '';
+  document.getElementById('debt-other').value = '';
+  document.getElementById('employ-seg').querySelectorAll('.seg-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
+  if (hasCoBorrower) {
+    document.getElementById('coborrower-card').classList.remove('visible');
+    document.getElementById('add-coborrower-btn').style.display = '';
+    hasCoBorrower = false;
+  }
+  co2Income = 0; co2SelfEmployed = false; co2AdditionalAnnual = 0;
+  co2Age = 35; co2DebtCar = 0; co2DebtCC = 0; co2DebtOther = 0;
+  document.getElementById('co2-income-display').value = '0';
+  document.getElementById('co2-income-val').value = 0;
+  var co2IncSl = document.getElementById('co2-income-slider'); co2IncSl.value = 2000; syncFill('co2-income-fill', co2IncSl);
+  document.getElementById('co2-add-income-display').value = '';
+  document.getElementById('co2-add-income-val').value = 0;
+  var co2AgeSl = document.getElementById('co2-age-slider'); co2AgeSl.value = 35; syncFill('co2-age-fill', co2AgeSl);
+  document.getElementById('co2-age-display').textContent = '35 years old';
+  document.getElementById('co2-debt-car').value = '';
+  document.getElementById('co2-debt-cc').value = '';
+  document.getElementById('co2-debt-other').value = '';
+  document.getElementById('co2-employ-seg').querySelectorAll('.seg-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
+  updateAll();
+}
+
+window.updateFromTweaks = function(t) {
+  annualRate  = (t.stressTestRate   || 4.0) / 100;
+  retAge      = t.retirementAge     || 65;
+  var bRate   = t.baseInterestRate  || 1.5;
+  ratePrivate = bRate / 100;
+  rateEc      = bRate / 100;
+  rateHdb     = bRate / 100;
+  ['private', 'ec', 'hdb'].forEach(function(key) {
+    var sl = document.getElementById(key + '-rate-slider');
+    if (!sl) return;
+    sl.value = bRate;
+    document.getElementById(key + '-rate-val').textContent = parseFloat(bRate).toFixed(2) + '%';
+    syncFill(key + '-rate-fill', sl);
+  });
+  updateAll();
+};
+</script>
+<div id="pdf-export" class="pdf-export">
+
+  <!-- Header -->
+  <div class="pdf-pg-header">
+    <img src="assets/property-scout-logo.png" class="pdf-logo" alt="Property Scout" />
+    <div class="pdf-pg-title">Affordability Summary</div>
+  </div>
+
+  <!-- Borrower details -->
+  <div class="pdf-borrowers" id="pdf-borrowers-grid">
+    <div class="pdf-borrower-card">
+      <div class="pdf-borrower-label">Borrower 1</div>
+      <div class="pdf-brow"><span>Employment</span><strong id="pdf-b1-employ">—</strong></div>
+      <div class="pdf-brow"><span>Monthly income</span><strong id="pdf-b1-income">—</strong></div>
+      <div class="pdf-brow" id="pdf-b1-add-row"><span>Additional annual income</span><strong id="pdf-b1-add">—</strong></div>
+      <div class="pdf-brow"><span>Current age</span><strong id="pdf-b1-age">—</strong></div>
+      <div class="pdf-debt-label" id="pdf-b1-debt-header">Monthly Debt Obligations</div>
+      <div class="pdf-brow" id="pdf-b1-car-row"><span>Car loan</span><strong id="pdf-b1-car">—</strong></div>
+      <div class="pdf-brow" id="pdf-b1-cc-row"><span>Credit card min.</span><strong id="pdf-b1-cc">—</strong></div>
+      <div class="pdf-brow" id="pdf-b1-other-row"><span>Other loans</span><strong id="pdf-b1-other">—</strong></div>
+    </div>
+    <div class="pdf-borrower-card" id="pdf-co2-card">
+      <div class="pdf-borrower-label">Co-borrower</div>
+      <div class="pdf-brow"><span>Employment</span><strong id="pdf-b2-employ">—</strong></div>
+      <div class="pdf-brow"><span>Monthly income</span><strong id="pdf-b2-income">—</strong></div>
+      <div class="pdf-brow" id="pdf-b2-add-row"><span>Additional annual income</span><strong id="pdf-b2-add">—</strong></div>
+      <div class="pdf-brow"><span>Current age</span><strong id="pdf-b2-age">—</strong></div>
+      <div class="pdf-debt-label" id="pdf-b2-debt-header">Monthly Debt Obligations</div>
+      <div class="pdf-brow" id="pdf-b2-car-row"><span>Car loan</span><strong id="pdf-b2-car">—</strong></div>
+      <div class="pdf-brow" id="pdf-b2-cc-row"><span>Credit card min.</span><strong id="pdf-b2-cc">—</strong></div>
+      <div class="pdf-brow" id="pdf-b2-other-row"><span>Other loans</span><strong id="pdf-b2-other">—</strong></div>
+    </div>
+  </div>
+
+  <!-- Assessable income -->
+  <div class="pdf-assessable-bar">
+    <div class="pdf-assessable-left">
+      <div class="pdf-assessable-label">Total Assessable Income</div>
+      <div class="pdf-assessable-amt" id="pdf-assessable">—</div>
+    </div>
+  </div>
+  <div class="pdf-assumptions" id="pdf-assumptions"></div>
+
+  <!-- Property cards -->
+  <div class="pdf-cards">
+    <div class="pdf-card">
+      <div class="pdf-card-head"><span class="pdf-card-name">Private Property</span><span class="pdf-card-badge">TDSR 55%</span></div>
+      <div class="pdf-card-body">
+        <div class="pdf-card-row"><span>Max eligible loan</span><strong id="pdf-p-loan">—</strong></div>
+        <div class="pdf-card-row"><span>Max property price</span><strong id="pdf-p-price">—</strong></div>
+        <div class="pdf-card-row"><span>Down payment (25%)</span><strong id="pdf-p-down">—</strong></div>
+        <div class="pdf-card-row"><span>Loan tenure</span><strong id="pdf-p-tenure">—</strong></div>
+        <div class="pdf-card-row monthly"><span>Monthly repayment <span id="pdf-p-rate" style="font-size:8px;opacity:.55"></span></span><strong id="pdf-p-monthly">—</strong></div>
+      </div>
+    </div>
+    <div class="pdf-card">
+      <div class="pdf-card-head"><span class="pdf-card-name">Executive Condo (EC)</span><span class="pdf-card-badge">MSR 30%</span></div>
+      <div class="pdf-card-body">
+        <div class="pdf-card-row"><span>Max eligible loan</span><strong id="pdf-e-loan">—</strong></div>
+        <div class="pdf-card-row"><span>Max property price</span><strong id="pdf-e-price">—</strong></div>
+        <div class="pdf-card-row"><span>Down payment (25%)</span><strong id="pdf-e-down">—</strong></div>
+        <div class="pdf-card-row"><span>Loan tenure</span><strong id="pdf-e-tenure">—</strong></div>
+        <div class="pdf-card-row monthly"><span>Monthly repayment <span id="pdf-e-rate" style="font-size:8px;opacity:.55"></span></span><strong id="pdf-e-monthly">—</strong></div>
+      </div>
+    </div>
+    <div class="pdf-card">
+      <div class="pdf-card-head"><span class="pdf-card-name">HDB</span><span class="pdf-card-badge">MSR 30%</span></div>
+      <div class="pdf-card-body">
+        <div class="pdf-card-row"><span>Max eligible loan</span><strong id="pdf-h-loan">—</strong></div>
+        <div class="pdf-card-row"><span>Max property price</span><strong id="pdf-h-price">—</strong></div>
+        <div class="pdf-card-row"><span>Down payment (25%)</span><strong id="pdf-h-down">—</strong></div>
+        <div class="pdf-card-row"><span>Loan tenure</span><strong id="pdf-h-tenure">—</strong></div>
+        <div class="pdf-card-row monthly"><span>Monthly repayment <span id="pdf-h-rate" style="font-size:8px;opacity:.55"></span></span><strong id="pdf-h-monthly">—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent footer -->
+  <div class="pdf-agent-footer">
+    <img src="assets/agent-portrait-1.jpg" class="pdf-agent-photo" alt="Shi Yao" />
+    <div class="pdf-agent-info">
+      <div class="pdf-agent-name">Shi Yao (Surya Wijaya)</div>
+      <div class="pdf-agent-creds">CEA R057878B &middot; PropNex Realty Pte Ltd</div>
+      <div class="pdf-agent-phone">+65 8887 7800</div>
+    </div>
+    <img id="pdf-qr-img" class="pdf-qr-img" alt="WhatsApp QR" />
+  </div>
+  <div class="pdf-disclaimer">All figures are indicative estimates based on MAS TDSR/MSR guidelines and the stress-test interest rate. They do not constitute financial or mortgage advice. Loan eligibility is subject to the bank&rsquo;s credit assessment. Please consult a licensed mortgage broker for advice tailored to your circumstances. CEA Registered Salesperson (R057878B) under PropNex Realty Pte Ltd.</div>
+  <div class="pdf-date-footer" id="pdf-date"></div>
+
+</div>
+
+<div id="tweaks-root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  stressTestRate:   4.0,
+  retirementAge:   65,
+  baseInterestRate: 1.5
+}/*EDITMODE-END*/;
+
+function CalcTweaks() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => {
+    if (typeof window.updateFromTweaks === 'function') window.updateFromTweaks(t);
+  }, [t.stressTestRate, t.retirementAge, t.baseInterestRate]);
+  return (
+    <TweaksPanel>
+      <TweakSection label="Loan assumptions" />
+      <TweakSlider label="Stress test rate" value={t.stressTestRate}
+                   min={3.0} max={5.0} step={0.25} unit="% p.a."
+                   onChange={v => setTweak('stressTestRate', v)} />
+      <TweakRadio  label="Retirement age cap" value={t.retirementAge}
+                   options={[65, 70]}
+                   onChange={v => setTweak('retirementAge', v)} />
+      <TweakSection label="Interest rate" />
+      <TweakSlider label="Default rate" value={t.baseInterestRate}
+                   min={0.5} max={5.0} step={0.25} unit="%"
+                   onChange={v => setTweak('baseInterestRate', v)} />
+    </TweaksPanel>
+  );
+}
+ReactDOM.createRoot(document.getElementById('tweaks-root')).render(React.createElement(CalcTweaks));
+</script>
+</body>
+</html>
